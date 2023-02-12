@@ -13,6 +13,9 @@ import { summaly } from '../src/index.js';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {expect, jest, test, describe, beforeEach, afterEach} from '@jest/globals';
+import { Agent as httpAgent } from 'node:http';
+import { Agent as httpsAgent } from 'node:https';
+import { StatusError } from '../src/utils/status-error.js';
 
 const _filename = fileURLToPath(import.meta.url);
 const _dirname = dirname(_filename);
@@ -31,10 +34,14 @@ const host = `http://localhost:${port}`;
 // Display detail of unhandled promise rejection
 process.on('unhandledRejection', console.dir);
 
-let app: ReturnType<typeof fastify>;
+let app: ReturnType<typeof fastify> | null = null;
+let n = 0;
 
-afterEach(() => {
-	if (app) return app.close();
+afterEach(async () => {
+	if (app) {
+		await app.close();
+		app = null;
+	}
 });
 
 /* tests below */
@@ -66,7 +73,7 @@ test('faviconがHTML上で指定されていなくて、ルートにも存在し
 test('titleがcleanupされる', async () => {
 	app = fastify();
 	app.get('/', (request, reply) => {
-		return reply.send(fs.createReadStream(_dirname + '/htmls/ditry-title.html'));
+		return reply.send(fs.createReadStream(_dirname + '/htmls/dirty-title.html'));
 	});
 	await app.listen({ port });
 
@@ -77,15 +84,39 @@ test('titleがcleanupされる', async () => {
 describe('Private IP blocking', () => {
 	beforeEach(() => {
 		process.env.SUMMALY_ALLOW_PRIVATE_IP = 'false';
+		app = fastify();
+		app.get('*', (request, reply) => {
+			return reply.send(fs.createReadStream(_dirname + '/htmls/og-title.html'));
+		});
+		return app.listen({ port });
 	});
 
 	test('private ipなサーバーの情報を取得できない', async () => {
-		app = fastify();
-		app.get('/', (request, reply) => {
-			return reply.send(fs.createReadStream(_dirname + '/htmls/og-title.html'));
+		const summary = await summaly(host).catch((e: StatusError) => e);
+		if (summary instanceof StatusError) {
+			expect(summary.name).toBe('StatusError');
+		} else {
+			expect(summary).toBeInstanceOf(StatusError);
+		}
+	});
+
+	test('agentが指定されている場合はprivate ipを許可', async () => {
+		const summary = await summaly(host, {
+			agent: {
+				http: new httpAgent({ keepAlive: true }),
+				https: new httpsAgent({ keepAlive: true }),
+			}
 		});
-		await app.listen({ port });
-		expect(() => summaly(host)).rejects.toMatch('Private IP rejected 127.0.0.1');
+		expect(summary.title).toBe('Strawberry Pasta');
+	});
+
+	test('agentが空のオブジェクトの場合はprivate ipを許可しない', async () => {
+		const summary = await summaly(host, { agent: {} }).catch((e: StatusError) => e);
+		if (summary instanceof StatusError) {
+			expect(summary.name).toBe('StatusError');
+		} else {
+			expect(summary).toBeInstanceOf(StatusError);
+		}
 	});
 
 	afterEach(() => {
@@ -96,7 +127,7 @@ describe('Private IP blocking', () => {
 describe('OGP', () => {
 	test('title', async () => {
 		app = fastify();
-		app.get('/', (request, reply) => {
+		app.get('*', (request, reply) => {
 			return reply.send(fs.createReadStream(_dirname + '/htmls/og-title.html'));
 		});
 		await app.listen({ port });

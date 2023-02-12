@@ -42,8 +42,8 @@ export async function scpaping(url: string, opts?: { lang?: string; }) {
 		typeFilter: /^(text\/html|application\/xhtml\+xml)/,
 	});
 
-	// テスト用
-	const allowPrivateIp = process.env.SUMMALY_ALLOW_PRIVATE_IP === 'true';
+	// SUMMALY_ALLOW_PRIVATE_IPはテスト用
+	const allowPrivateIp = process.env.SUMMALY_ALLOW_PRIVATE_IP === 'true' || Object.keys(agent).length > 0;
 
 	if (!allowPrivateIp && response.ip && PrivateIp(response.ip)) {
 		throw new StatusError(`Private IP rejected ${response.ip}`, 400, 'Private IP Rejected');

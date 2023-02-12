@@ -1,4 +1,5 @@
 export class StatusError extends Error {
+	public name: string;
 	public statusCode: number;
 	public statusMessage?: string;
 	public isPermanentError: boolean;
