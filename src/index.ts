@@ -3,7 +3,7 @@
  * https://github.com/syuilo/summaly
  */
 
-import * as URL from 'url';
+import * as URL from 'node:url';
 import tracer from 'trace-redirect';
 import Summary from './summary.js';
 import type { IPlugin as _IPlugin } from './iplugin.js';
@@ -59,8 +59,16 @@ export const summaly = async (url: string, options?: Options): Promise<Result> =
 
 	const plugins = builtinPlugins.concat(opts.plugins || []);
 
-	const actualUrl = /*opts.followRedirects ? await tracer(url).catch(() => url) :*/ url;
-
+	let actualUrl = url;
+	if (opts.followRedirects) {
+		// .catch(() => url)にすればいいけど、jestにtrace-redirectを食わせるのが面倒なのでtry-catch
+		try {
+			actualUrl = await tracer(url);
+		} catch (e) {
+			actualUrl = url;
+		}
+	}
+ 
 	const _url = URL.parse(actualUrl, true);
 
 	// Find matching plugin

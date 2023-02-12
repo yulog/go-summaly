@@ -1,4 +1,4 @@
-import * as URL from 'url';
+import * as URL from 'node:url';
 import Summary from './summary.js';
 
 export interface IPlugin {

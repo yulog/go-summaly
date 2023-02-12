@@ -6,7 +6,8 @@
 
 /* dependencies below */
 
-import * as fs from 'fs';
+import fs from 'node:fs';
+import process from 'node:process';
 import fastify from 'fastify';
 import { summaly } from '../src/index.js';
 import { dirname } from 'node:path';
@@ -45,7 +46,7 @@ test('faviconがHTML上で指定されていないが、ルートに存在する
 	app.get('/', (request, reply) => {
 		return reply.send(fs.createReadStream(_dirname + '/htmls/no-favicon.html'));
 	});
-	app.get('/favicon.ico', (_, reply) => reply.status(200));
+	app.get('/favicon.ico', (_, reply) => reply.status(200).send());
 	await app.listen({ port });
 
 	const summary = await summaly(host);
@@ -57,6 +58,7 @@ test('faviconがHTML上で指定されていなくて、ルートにも存在し
 	app.get('/', (request, reply) => {
 		return reply.send(fs.createReadStream(_dirname + '/htmls/no-favicon.html'));
 	});
+	app.get('*', (_, reply) => reply.status(404).send());
 	await app.listen({ port });
 
 	const summary = await summaly(host);
@@ -85,9 +87,7 @@ describe('Private IP blocking', () => {
 			return reply.send(fs.createReadStream(_dirname + '/htmls/og-title.html'));
 		});
 		await app.listen({ port });
-
-
-		expect(() => summaly(host)).toThrow();
+		expect(() => summaly(host)).rejects.toMatch('Private IP rejected 127.0.0.1');
 	});
 
 	afterEach(() => {

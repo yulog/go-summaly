@@ -1,4 +1,4 @@
-import * as URL from 'url';
+import * as URL from 'node:url';
 import clip from './utils/clip.js';
 import cleanupTitle from './utils/cleanup-title.js';
 

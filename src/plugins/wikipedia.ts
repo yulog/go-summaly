@@ -1,4 +1,4 @@
-import * as URL from 'url';
+import * as URL from 'node:url';
 import { get } from '../utils/got.js';
 import debug from 'debug';
 import summary from '../summary.js';
