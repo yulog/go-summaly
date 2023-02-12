@@ -1,5 +1,5 @@
-import * as iconv from 'iconv-lite';
-import * as jschardet from 'jschardet';
+import iconv from 'iconv-lite';
+import jschardet from 'jschardet';
 
 const regCharset = new RegExp(/charset\s*=\s*["']?([\w-]+)/, 'i');
 

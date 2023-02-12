@@ -8,7 +8,7 @@
 
 import * as fs from 'fs';
 import fastify from 'fastify';
-import { summaly } from '../built/index.js';
+import { summaly } from '../src/index.js';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {expect, jest, test, describe, beforeEach, afterEach} from '@jest/globals';
@@ -33,13 +33,12 @@ process.on('unhandledRejection', console.dir);
 let app: ReturnType<typeof fastify>;
 
 afterEach(() => {
-	if (app) app.close();
+	if (app) return app.close();
 });
 
 /* tests below */
 
 test('faviconがHTML上で指定されていないが、ルートに存在する場合、正しく設定される', async () => {
-	console.log('AAAAAAAAAAAAAAAAAAAAAAAA')
 	app = fastify({
 		logger: true,
 	});
@@ -48,19 +47,17 @@ test('faviconがHTML上で指定されていないが、ルートに存在する
 	});
 	app.get('/favicon.ico', (_, reply) => reply.status(200));
 	await app.listen({ port });
-	await app.ready();
 
 	const summary = await summaly(host);
 	expect(summary.icon).toBe(`${host}/favicon.ico`);
 });
-/*
+
 test('faviconがHTML上で指定されていなくて、ルートにも存在しなかった場合 null になる', async () => {
 	app = fastify();
 	app.get('/', (request, reply) => {
 		return reply.send(fs.createReadStream(_dirname + '/htmls/no-favicon.html'));
 	});
 	await app.listen({ port });
-	await app.ready();
 
 	const summary = await summaly(host);
 	expect(summary.icon).toBe(null);
@@ -72,7 +69,6 @@ test('titleがcleanupされる', async () => {
 		return reply.send(fs.createReadStream(_dirname + '/htmls/ditry-title.html'));
 	});
 	await app.listen({ port });
-	await app.ready();
 
 	const summary = await summaly(host);
 	expect(summary.title).toBe('Strawberry Pasta');
@@ -89,9 +85,9 @@ describe('Private IP blocking', () => {
 			return reply.send(fs.createReadStream(_dirname + '/htmls/og-title.html'));
 		});
 		await app.listen({ port });
-		await app.ready();
 
-		expect(summaly(host)).toThrow();
+
+		expect(() => summaly(host)).toThrow();
 	});
 
 	afterEach(() => {
@@ -106,7 +102,6 @@ describe('OGP', () => {
 			return reply.send(fs.createReadStream(_dirname + '/htmls/og-title.html'));
 		});
 		await app.listen({ port });
-		await app.ready();
 
 		const summary = await summaly(host);
 		expect(summary.title).toBe('Strawberry Pasta');
@@ -118,7 +113,6 @@ describe('OGP', () => {
 			return reply.send(fs.createReadStream(_dirname + '/htmls/og-description.html'));
 		});
 		await app.listen({ port });
-		await app.ready();
 
 		const summary = await summaly(host);
 		expect(summary.description).toBe('Strawberry Pasta');
@@ -130,7 +124,6 @@ describe('OGP', () => {
 			return reply.send(fs.createReadStream(_dirname + '/htmls/og-site_name.html'));
 		});
 		await app.listen({ port });
-		await app.ready();
 
 		const summary = await summaly(host);
 		expect(summary.sitename).toBe('Strawberry Pasta');
@@ -142,7 +135,6 @@ describe('OGP', () => {
 			return reply.send(fs.createReadStream(_dirname + '/htmls/og-image.html'));
 		});
 		await app.listen({ port });
-		await app.ready();
 
 		const summary = await summaly(host);
 		expect(summary.thumbnail).toBe('https://himasaku.net/himasaku.png');
@@ -156,7 +148,6 @@ describe('TwitterCard', () => {
 			return reply.send(fs.createReadStream(_dirname + '/htmls/twitter-title.html'));
 		});
 		await app.listen({ port });
-		await app.ready();
 
 		const summary = await summaly(host);
 		expect(summary.title).toBe('Strawberry Pasta');
@@ -168,7 +159,6 @@ describe('TwitterCard', () => {
 			return reply.send(fs.createReadStream(_dirname + '/htmls/twitter-description.html'));
 		});
 		await app.listen({ port });
-		await app.ready();
 
 		const summary = await summaly(host);
 		expect(summary.description).toBe('Strawberry Pasta');
@@ -180,7 +170,6 @@ describe('TwitterCard', () => {
 			return reply.send(fs.createReadStream(_dirname + '/htmls/twitter-image.html'));
 		});
 		await app.listen({ port });
-		await app.ready();
 
 		const summary = await summaly(host);
 		expect(summary.thumbnail).toBe('https://himasaku.net/himasaku.png');
@@ -192,7 +181,6 @@ describe('TwitterCard', () => {
 			return reply.send(fs.createReadStream(_dirname + '/htmls/player-peertube-video.html'));
 		});
 		await app.listen({ port });
-		await app.ready();
 
 		const summary = await summaly(host);
 		expect(summary.player.url).toBe('https://example.com/embedurl');
@@ -204,7 +192,6 @@ describe('TwitterCard', () => {
 			return reply.send(fs.createReadStream(_dirname + '/htmls/player-pleroma-video.html'));
 		});
 		await app.listen({ port });
-		await app.ready();
 
 		const summary = await summaly(host);
 		expect(summary.player.url).toBe('https://example.com/embedurl');
@@ -216,10 +203,8 @@ describe('TwitterCard', () => {
 			return reply.send(fs.createReadStream(_dirname + '/htmls/player-pleroma-image.html'));
 		});
 		await app.listen({ port });
-		await app.ready();
 
 		const summary = await summaly(host);
-		expect(summary.player.url).toBe('https://example.com/embedurl');
+		expect(summary.thumbnail).toBe('https://example.com/imageurl');
 	});
 });
-*/

@@ -10,9 +10,9 @@ import { readFileSync } from 'node:fs';
 const _filename = fileURLToPath(import.meta.url);
 const _dirname = dirname(_filename);
 
-export let agent: Got.Agents | undefined = undefined;
+export let agent: Got.Agents = {};
 export function setAgent(_agent: Got.Agents) {
-	agent = _agent;
+	agent = _agent || {};
 }
 
 export type GotOptions = {
