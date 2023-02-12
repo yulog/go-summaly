@@ -59,7 +59,7 @@ export const summaly = async (url: string, options?: Options): Promise<Result> =
 
 	const plugins = builtinPlugins.concat(opts.plugins || []);
 
-	const actualUrl = opts.followRedirects ? await tracer(url).catch(() => url) : url;
+	const actualUrl = /*opts.followRedirects ? await tracer(url).catch(() => url) :*/ url;
 
 	const _url = URL.parse(actualUrl, true);
 
@@ -78,7 +78,7 @@ export const summaly = async (url: string, options?: Options): Promise<Result> =
 	});
 };
 
-export default function (fastify: FastifyInstance, options: {}, done: (err?: Error) => void) {
+export default function (fastify: FastifyInstance, options: Options, done: (err?: Error) => void) {
 	fastify.get<{
         Querystring: {
 				url?: string;
@@ -96,6 +96,7 @@ export default function (fastify: FastifyInstance, options: {}, done: (err?: Err
 			const summary = await summaly(url, {
 				lang: req.query.lang as string,
 				followRedirects: false,
+				...options,
 			});
 
 			return summary;
