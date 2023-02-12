@@ -16,7 +16,7 @@
   "scripts": {
     "build": "tsc",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --silent=false --verbose false",
-    "start": "fastify start ./built/index.js"
+    "serve": "fastify start ./built/index.js"
   },
   "optionalDependencies": {
     "fastify": "3.24.1"
