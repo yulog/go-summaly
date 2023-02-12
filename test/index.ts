@@ -40,9 +40,7 @@ afterEach(() => {
 /* tests below */
 
 test('faviconがHTML上で指定されていないが、ルートに存在する場合、正しく設定される', async () => {
-	app = fastify({
-		logger: true,
-	});
+	app = fastify();
 	app.get('/', (request, reply) => {
 		return reply.send(fs.createReadStream(_dirname + '/htmls/no-favicon.html'));
 	});
