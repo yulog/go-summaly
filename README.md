@@ -1,26 +1,40 @@
 summaly
 ================================================================
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/syuilo/summaly.svg)](https://greenkeeper.io/)
-
-[![][npm-badge]][npm-link]
 [![][mit-badge]][mit]
-[![][travis-badge]][travis-link]
 [![][himawari-badge]][himasaku]
 [![][sakurako-badge]][himasaku]
 
-[![NPM](https://nodei.co/npm/summaly.png?downloads=true&downloadRank=true&stars=true)](https://www.npmjs.com/package/summaly)
-
-Get any web page's summary. [Try it out](https://runkit.com/npm/summaly)
-
 Installation
 ----------------------------------------------------------------
-`$ npm install summaly`
+```
+npm install git+https://github.com/misskey-dev/summalygit
+```
 
 Usage
 ----------------------------------------------------------------
-``` javascript
+As a function:
+
+```javascript
+import { summaly } from 'summaly';
+
 summaly(url[, opts])
+```
+
+As Fastify plugin:  
+(will listen `GET` of `/url`)
+
+```javascript
+import Summaly from 'summaly';
+
+fastify.register(Summaly[, opts])
+```
+
+Run the server:
+
+```
+npm run build
+npm run serve
 ```
 
 ### Options
@@ -42,6 +56,8 @@ interface IPlugin {
 ### Returns
 
 A Promise of an Object that contains properties below:
+
+※ Almost all values are nullable. player shoud not be null.
 
 #### Root
 
@@ -66,7 +82,7 @@ A Promise of an Object that contains properties below:
 ### Example
 
 ``` javascript
-import summaly from 'summaly';
+import { summaly } from 'summaly';
 
 const summary = await summaly('https://www.youtube.com/watch?v=NMIEAhH_fTU');
 

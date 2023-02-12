@@ -92,7 +92,7 @@ export default function (fastify: FastifyInstance, options: Options, done: (err?
 				url?: string;
 				lang?: string;
 			};
-	}>('/', async (req, reply) => {
+	}>('/url', async (req, reply) => {
 		const url = req.query.url as string;
 		if (url == null) {
 			return reply.status(400).send({
