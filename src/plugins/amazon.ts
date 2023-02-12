@@ -1,6 +1,6 @@
 import * as URL from 'url';
-import { scpaping } from '../utils/got';
-import summary from '../summary';
+import { scpaping } from '../utils/got.js';
+import summary from '../summary.js';
 
 export function test(url: URL.Url): boolean {
 	return url.hostname === 'www.amazon.com' ||
@@ -29,19 +29,19 @@ export async function summarize(url: URL.Url): Promise<summary> {
 		$('#productDescription').text() ||
 		$('meta[name="description"]').attr('content');
 
-	const thumbnail: string = $('#landingImage').attr('src');
+	const thumbnail: string | undefined = $('#landingImage').attr('src');
 
 	const playerUrl =
 		$('meta[property="twitter:player"]').attr('content') ||
 		$('meta[name="twitter:player"]').attr('content');
 
-	const playerWidth = parseInt(
+	const playerWidth =
 		$('meta[property="twitter:player:width"]').attr('content') ||
-		$('meta[name="twitter:player:width"]').attr('content'));
+		$('meta[name="twitter:player:width"]').attr('content');
 
-	const playerHeight = parseInt(
+	const playerHeight =
 		$('meta[property="twitter:player:height"]').attr('content') ||
-		$('meta[name="twitter:player:height"]').attr('content'));
+		$('meta[name="twitter:player:height"]').attr('content');
 
 	return {
 		title: title ? title.trim() : null,
@@ -50,8 +50,8 @@ export async function summarize(url: URL.Url): Promise<summary> {
 		thumbnail: thumbnail ? thumbnail.trim() : null,
 		player: {
 			url: playerUrl || null,
-			width: playerWidth || null,
-			height: playerHeight || null
+			width: playerWidth ? parseInt(playerWidth) : null,
+			height: playerHeight ? parseInt(playerHeight) : null
 		},
 		sitename: 'Amazon'
 	};

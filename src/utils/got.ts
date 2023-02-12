@@ -1,14 +1,34 @@
-import { version } from '../../package.json';
 import got, * as Got from 'got';
-import { StatusError } from './status-error';
-import { detectEncoding, toUtf8 } from './encoding';
+import { StatusError } from './status-error.js';
+import { detectEncoding, toUtf8 } from './encoding.js';
 import * as cheerio from 'cheerio';
-const PrivateIp = require('private-ip');
+import PrivateIp from 'private-ip';
+import { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { readFileSync } from 'node:fs';
+
+const _filename = fileURLToPath(import.meta.url);
+const _dirname = dirname(_filename);
+
+export let agent: Got.Agents | undefined = undefined;
+export function setAgent(_agent: Got.Agents) {
+	agent = _agent;
+}
+
+export type GotOptions = {
+	url: string;
+	method: 'GET' | 'POST' | 'HEAD';
+	body?: string;
+	headers: Record<string, string | undefined>;
+	typeFilter?: RegExp;
+}
+
+const repo = JSON.parse(readFileSync(`${_dirname}/../../package.json`, 'utf8'));
 
 const RESPONSE_TIMEOUT = 20 * 1000;
 const OPERATION_TIMEOUT = 60 * 1000;
 const MAX_RESPONSE_SIZE = 10 * 1024 * 1024;
-const BOT_UA = `SummalyBot/${version}`;
+const BOT_UA = `SummalyBot/${repo.version}`;
 
 export async function scpaping(url: string, opts?: { lang?: string; }) {
 	const response = await getResponse({
@@ -46,13 +66,13 @@ export async function get(url: string) {
 		method: 'GET',
 		headers: {
 			'accept': '*/*',
-		}
+		},
 	});
 
 	return await res.body;
 }
 
-export async function head(url: string, options?: ) {
+export async function head(url: string) {
 	const res = await getResponse({
 		url,
 		method: 'HEAD',
@@ -64,7 +84,7 @@ export async function head(url: string, options?: ) {
 	return await res;
 }
 
-async function getResponse(args: { url: string, method: 'GET' | 'POST' | 'HEAD', body?: string, headers: Record<string, string>, typeFilter?: RegExp }) {
+async function getResponse(args: GotOptions) {
 	const timeout = RESPONSE_TIMEOUT;
 	const operationTimeout = OPERATION_TIMEOUT;
 
@@ -81,8 +101,11 @@ async function getResponse(args: { url: string, method: 'GET' | 'POST' | 'HEAD',
 			send: timeout,
 			request: operationTimeout,	// whole operation timeout
 		},
+		agent,
 		http2: false,
-		retry: 0,
+		retry: {
+			limit: 0,
+		},
 	});
 
 	return await receiveResponce({ req, typeFilter: args.typeFilter });

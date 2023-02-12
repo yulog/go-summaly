@@ -1,9 +1,7 @@
 import * as URL from 'url';
-import Summary from './summary';
+import Summary from './summary.js';
 
-interface IPlugin {
+export interface IPlugin {
 	test: (url: URL.Url) => boolean;
 	summarize: (url: URL.Url, lang?: string) => Promise<Summary>;
 }
-
-export default IPlugin;

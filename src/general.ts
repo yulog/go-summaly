@@ -1,11 +1,11 @@
 import * as URL from 'url';
-import clip from './utils/clip';
-import cleanupTitle from './utils/cleanup-title';
+import clip from './utils/clip.js';
+import cleanupTitle from './utils/cleanup-title.js';
 
 import { decode as decodeHtml } from 'html-entities';
 
-import { head, scpaping } from './utils/got';
-import Summary from './summary';
+import { head, scpaping } from './utils/got.js';
+import Summary from './summary.js';
 
 export default async (url: URL.Url, lang: string | null = null): Promise<Summary | null> => {
 	if (lang && !lang.match(/^[\w-]+(\s*,\s*[\w-]+)*$/)) lang = null;

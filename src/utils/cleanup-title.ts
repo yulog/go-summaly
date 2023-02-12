@@ -1,4 +1,4 @@
-const escapeRegExp = require('escape-regexp');
+import escapeRegExp from 'escape-regexp';
 
 export default function(title: string, siteName?: string | null): string {
 	title = title.trim();

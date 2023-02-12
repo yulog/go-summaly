@@ -9,24 +9,34 @@
   "main": "./built/index.js",
   "type": "module",
   "types": "./built/index.d.ts",
+  "files": [
+    "built",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "tsc",
-    "test": "mocha --harmony"
+    "test": "mocha --harmony",
+    "start": "fastify start ./built/index.js"
+  },
+  "optionalDependencies": {
+    "fastify": "3.24.1"
   },
   "devDependencies": {
     "@types/cheerio": "0.22.18",
     "@types/debug": "4.1.7",
+    "@types/escape-regexp": "^0.0.1",
     "@types/html-entities": "1.3.4",
     "@types/mocha": "9.0.0",
     "@types/node": "16.11.12",
-    "@types/require-all": "^3.0.3",
+    "debug": "^4.3.4",
     "express": "^4.18.2",
+    "fastify": "^4.13.0",
+    "fastify-cli": "^5.7.1",
     "mocha": "^9.2.2",
     "typescript": "4.5.3"
   },
   "dependencies": {
     "cheerio": "^1.0.0-rc.12",
-    "debug": "4.3.3",
     "escape-regexp": "0.0.1",
     "got": "^12.5.3",
     "html-entities": "2.3.2",
@@ -34,7 +44,6 @@
     "jschardet": "3.0.0",
     "koa": "2.13.4",
     "private-ip": "2.3.3",
-    "require-all": "3.0.0",
     "trace-redirect": "1.0.6"
   }
 }

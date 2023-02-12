@@ -6,9 +6,9 @@
 
 /* dependencies below */
 
-const assert = require('assert');
-const express = require('express');
-const summaly = require('../').default;
+import * as assert from 'assert';
+import express from 'express';
+import { summaly } from '../built/index.js';
 
 /* settings below */
 

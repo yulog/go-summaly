@@ -1,4 +1,4 @@
-import nullOrEmpty from './null-or-empty';
+import nullOrEmpty from './null-or-empty.js';
 
 export default function(s: string, max: number): string {
 	if (nullOrEmpty(s)) {
