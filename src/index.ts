@@ -4,7 +4,7 @@
  */
 
 import * as URL from 'url';
-import requireAll = require('require-all');
+import requireAll from 'require-all';
 import tracer from 'trace-redirect';
 import Summary from './summary';
 import IPlugin from './iplugin';
@@ -22,7 +22,7 @@ type Options = {
 	/**
 	 * Accept-Language for the request
 	 */
-	lang?: string;
+	lang?: string | null;
 
 	/**
 	 * Whether follow redirects
@@ -45,7 +45,7 @@ type Result = Summary & {
 const defaultOptions = {
 	lang: null,
 	followRedirects: true,
-	plugins: null
+	plugins: [],
 } as Options;
 
 /**

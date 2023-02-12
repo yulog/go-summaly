@@ -52,13 +52,13 @@ export async function get(url: string) {
 	return await res.body;
 }
 
-export async function head(url: string) {
+export async function head(url: string, options?: ) {
 	const res = await getResponse({
 		url,
 		method: 'HEAD',
 		headers: {
 			'accept': '*/*',
-		}
+		},
 	});
 
 	return await res;

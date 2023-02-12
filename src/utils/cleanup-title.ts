@@ -1,6 +1,6 @@
 const escapeRegExp = require('escape-regexp');
 
-export default function(title: string, siteName?: string): string {
+export default function(title: string, siteName?: string | null): string {
 	title = title.trim();
 
 	if (siteName) {

@@ -7,14 +7,14 @@ import { decode as decodeHtml } from 'html-entities';
 import { head, scpaping } from './utils/got';
 import Summary from './summary';
 
-export default async (url: URL.Url, lang: string = null): Promise<Summary> => {
+export default async (url: URL.Url, lang: string | null = null): Promise<Summary | null> => {
 	if (lang && !lang.match(/^[\w-]+(\s*,\s*[\w-]+)*$/)) lang = null;
 
 	const res = await scpaping(url.href, { lang: lang || undefined });
 	const $ = res.$;
 	const twitterCard = $('meta[property="twitter:card"]').attr('content');
 
-	let title =
+	let title: string | null | undefined =
 		$('meta[property="og:title"]').attr('content') ||
 		$('meta[property="twitter:title"]').attr('content') ||
 		$('title').text();
@@ -25,7 +25,7 @@ export default async (url: URL.Url, lang: string = null): Promise<Summary> => {
 
 	title = clip(decodeHtml(title), 100);
 
-	let image =
+	let image: string | null | undefined =
 		$('meta[property="og:image"]').attr('content') ||
 		$('meta[property="twitter:image"]').attr('content') ||
 		$('link[rel="image_src"]').attr('href') ||
@@ -53,7 +53,7 @@ export default async (url: URL.Url, lang: string = null): Promise<Summary> => {
 		$('meta[property="og:video:height"]').attr('content') ||
 		'');
 
-	let description =
+	let description: string | null | undefined =
 		$('meta[property="og:description"]').attr('content') ||
 		$('meta[property="twitter:description"]').attr('content') ||
 		$('meta[name="description"]').attr('content');
@@ -93,7 +93,7 @@ export default async (url: URL.Url, lang: string = null): Promise<Summary> => {
 	// 相対的なURL (ex. test) を絶対的 (ex. /test) に変換
 	const toAbsolute = (relativeURLString: string): string => {
 		const relativeURL = URL.parse(relativeURLString);
-		const isAbsolute = relativeURL.slashes || relativeURL.path[0] === '/';
+		const isAbsolute = relativeURL.slashes || relativeURL.path !== null && relativeURL.path[0] === '/';
 
 		// 既に絶対的なら、即座に値を返却
 		if (isAbsolute) {
