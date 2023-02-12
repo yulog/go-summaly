@@ -43,7 +43,7 @@ export const summaly = async (url, options) => {
     });
 };
 export default function (fastify, options, done) {
-    fastify.get('/url', async (req, reply) => {
+    fastify.get('/', async (req, reply) => {
         const url = req.query.url;
         if (url == null) {
             return reply.status(400).send({

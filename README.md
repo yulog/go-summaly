@@ -22,7 +22,7 @@ summaly(url[, opts])
 ```
 
 As Fastify plugin:  
-(will listen `GET` of `/url`)
+(will listen `GET` of `/`)
 
 ```javascript
 import Summaly from 'summaly';
