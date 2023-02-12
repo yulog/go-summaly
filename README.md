@@ -8,7 +8,7 @@ summaly
 Installation
 ----------------------------------------------------------------
 ```
-npm install git+https://github.com/misskey-dev/summalygit
+npm install git+https://github.com/misskey-dev/summaly.git
 ```
 
 Usage
@@ -33,6 +33,9 @@ fastify.register(Summaly[, opts])
 Run the server:
 
 ```
+git clone https://github.com/misskey-dev/summaly.git
+cd summaly
+NODE_ENV=development npm install
 npm run build
 npm run serve
 ```
