@@ -1,8 +1,8 @@
-import * as URL from 'node:url';
+import { URL } from 'node:url';
 import { scpaping } from '../utils/got.js';
 import summary from '../summary.js';
 
-export function test(url: URL.Url): boolean {
+export function test(url: URL): boolean {
 	return url.hostname === 'www.amazon.com' ||
 	url.hostname === 'www.amazon.co.jp' ||
 	url.hostname === 'www.amazon.ca' ||
@@ -19,7 +19,7 @@ export function test(url: URL.Url): boolean {
 	url.hostname === 'www.amazon.au';
 }
 
-export async function summarize(url: URL.Url): Promise<summary> {
+export async function summarize(url: URL): Promise<summary> {
 	const res = await scpaping(url.href);
 	const $ = res.$;
 
@@ -51,8 +51,9 @@ export async function summarize(url: URL.Url): Promise<summary> {
 		player: {
 			url: playerUrl || null,
 			width: playerWidth ? parseInt(playerWidth) : null,
-			height: playerHeight ? parseInt(playerHeight) : null
+			height: playerHeight ? parseInt(playerHeight) : null,
+			allow: playerUrl ? ['fullscreen', 'encrypted-media'] : [],
 		},
-		sitename: 'Amazon'
+		sitename: 'Amazon',
 	};
 }
