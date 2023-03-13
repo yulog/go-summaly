@@ -98,27 +98,38 @@ See [Permissions Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/Permi
 
 ### Example
 
-``` javascript
+```javascript
 import { summaly } from 'summaly';
 
 const summary = await summaly('https://www.youtube.com/watch?v=NMIEAhH_fTU');
 
-console.log(summary); // will be ... ↓
-/*
+console.log(summary);
+```
+
+will be ... ↓
+
+```json
 {
-	title: '【楽曲試聴】「Stage Bye Stage」(歌：島村卯月、渋谷凛、本田未央)',
-	icon: 'https://s.ytimg.com/yts/img/favicon-vfl8qSV2F.ico',
-	description: 'http://columbia.jp/idolmaster/ 2018年7月18日発売予定 THE IDOLM@STER CINDERELLA GIRLS CG STAR LIVE Stage Bye Stage 歌：島村卯月、渋谷凛、本田未央 COCC-17495［CD1枚組］ ￥1,200＋税 収録内容 Tr...',
-	thumbnail: 'https://i.ytimg.com/vi/NMIEAhH_fTU/maxresdefault.jpg',
-	player: {
-		url: 'https://www.youtube.com/embed/NMIEAhH_fTU',
-		width: 1280,
-		height: 720
+	"title": "【アイドルマスター】「Stage Bye Stage」(歌：島村卯月、渋谷凛、本田未央)",
+	"icon": "https://www.youtube.com/s/desktop/9318de79/img/favicon.ico",
+	"description": "Website▶https://columbia.jp/idolmaster/Playlist▶https://www.youtube.com/playlist?list=PL83A2998CF3BBC86D2018年7月18日発売予定THE IDOLM@STER CINDERELLA GIRLS CG STAR...",
+	"thumbnail": "https://i.ytimg.com/vi/NMIEAhH_fTU/maxresdefault.jpg",
+	"player": {
+		"url": "https://www.youtube.com/embed/		NMIEAhH_fTU?feature=oembed",
+		"width": 200,
+		"height": 113,
+		"allow": [
+			"autoplay",
+			"clipboard-write",
+			"encrypted-media",
+			"picture-in-picture",
+			"web-share"
+		]
 	},
-	sitename: 'YouTube',
-	url: 'https://www.youtube.com/watch?v=NMIEAhH_fTU'
+	"sitename": "YouTube",
+	"sensitive": false,
+	"url": "https://www.youtube.com/watch?	v=NMIEAhH_fTU"
 }
-*/
 ```
 
 Testing
