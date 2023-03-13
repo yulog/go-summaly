@@ -115,7 +115,7 @@ will be ... ↓
 	"description": "Website▶https://columbia.jp/idolmaster/Playlist▶https://www.youtube.com/playlist?list=PL83A2998CF3BBC86D2018年7月18日発売予定THE IDOLM@STER CINDERELLA GIRLS CG STAR...",
 	"thumbnail": "https://i.ytimg.com/vi/NMIEAhH_fTU/maxresdefault.jpg",
 	"player": {
-		"url": "https://www.youtube.com/embed/		NMIEAhH_fTU?feature=oembed",
+		"url": "https://www.youtube.com/embed/NMIEAhH_fTU?feature=oembed",
 		"width": 200,
 		"height": 113,
 		"allow": [
@@ -128,7 +128,7 @@ will be ... ↓
 	},
 	"sitename": "YouTube",
 	"sensitive": false,
-	"url": "https://www.youtube.com/watch?	v=NMIEAhH_fTU"
+	"url": "https://www.youtube.com/watch?v=NMIEAhH_fTU"
 }
 ```
 
