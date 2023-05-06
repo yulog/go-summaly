@@ -5,6 +5,8 @@ summaly
 [![][himawari-badge]][himasaku]
 [![][sakurako-badge]][himasaku]
 
+fork of [misskey-dev/summaly](https://github.com/misskey-dev/summaly)
+
 Installation
 ----------------------------------------------------------------
 ```
