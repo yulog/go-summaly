@@ -23,6 +23,7 @@ var allowType = []string{"text/html", "application/xhtml+xml"}
 
 const limit = 10 << 20
 
+// fetch は指定の url からBodyを取得する
 func fetch(url *url.URL) ([]byte, error) {
 	req, err := http.NewRequest(http.MethodGet, url.String(), nil)
 	if err != nil {

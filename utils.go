@@ -15,6 +15,7 @@ func ChooseOr(ss ...string) string {
 	return ""
 }
 
+// Clip は s を max で切り取る
 func Clip(s string, max int) string {
 	s = strings.TrimSpace(s)
 	if s == "" {
@@ -28,6 +29,7 @@ func Clip(s string, max int) string {
 	return s
 }
 
+// CleanupTitle は title から siteName を除去する
 func CleanupTitle(title, siteName string) string {
 	if title != "" && siteName != "" && strings.Contains(title, siteName) {
 		siteName = regexp.QuoteMeta(siteName)
