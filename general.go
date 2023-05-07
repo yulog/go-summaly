@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html"
 	"net/url"
+	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/dyatlov/go-opengraph/opengraph"
@@ -95,6 +96,14 @@ func (*General) summarize(s *Summaly) Summary {
 		sitename = v
 	} else {
 		sitename = s.URL.Host
+	}
+
+	sitename = strings.TrimSpace(sitename)
+
+	title = CleanupTitle(title, sitename)
+
+	if title == "" {
+		title = sitename
 	}
 
 	sensitive := doc.Find(".tweet").AttrOr("data-possibly-sensitive", "") == "true"

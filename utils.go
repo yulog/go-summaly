@@ -1,6 +1,10 @@
 package main
 
-import "strings"
+import (
+	"fmt"
+	"regexp"
+	"strings"
+)
 
 func ChooseOr(ss ...string) string {
 	for _, v := range ss {
@@ -22,4 +26,17 @@ func Clip(s string, max int) string {
 	}
 
 	return s
+}
+
+func CleanupTitle(title, siteName string) string {
+	if title != "" && siteName != "" && strings.Contains(title, siteName) {
+		siteName = regexp.QuoteMeta(siteName)
+		re := regexp.MustCompile(fmt.Sprintf(`^(\S+?)\s+?[\-\|:・]\s+?%s$`, siteName))
+		s := re.FindStringSubmatch(title)
+		if len(s) > 0 {
+			return s[1]
+		}
+	}
+
+	return title
 }
