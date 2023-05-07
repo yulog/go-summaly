@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/url"
 )
 
@@ -13,7 +12,7 @@ type Summaly struct {
 
 type Summarizer interface {
 	test() bool
-	summarize(*Summaly) Summary
+	summarize(*Summaly) (Summary, error)
 }
 
 // var ss = []Summarizer{new(General)}
@@ -21,7 +20,7 @@ type Summarizer interface {
 func (s *Summaly) Do() (Summary, error) {
 	body, err := fetch(s.URL)
 	if err != nil {
-		fmt.Println(err)
+		// fmt.Println(err)
 		return Summary{}, err
 	}
 	// fmt.Println(string(body))
@@ -33,7 +32,7 @@ func (s *Summaly) Do() (Summary, error) {
 	for _, v := range ss {
 		if v.test() {
 			// fmt.Println(v.summarize(s))
-			return v.summarize(s), nil
+			return v.summarize(s)
 		}
 	}
 	return Summary{}, nil

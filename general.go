@@ -18,12 +18,18 @@ func (*General) test() bool {
 	return true
 }
 
-func (*General) summarize(s *Summaly) Summary {
+func (*General) summarize(s *Summaly) (Summary, error) {
 	og := opengraph.NewOpenGraph()
 	// fmt.Println(string(s.Body))
-	og.ProcessHTML(bytes.NewReader(s.Body))
+	err := og.ProcessHTML(bytes.NewReader(s.Body))
+	if err != nil {
+		return Summary{}, err
+	}
 
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(s.Body))
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(s.Body))
+	if err != nil {
+		return Summary{}, err
+	}
 
 	title := ""
 	if og.Title != "" {
@@ -38,7 +44,10 @@ func (*General) summarize(s *Summaly) Summary {
 
 	title = Clip(html.UnescapeString(title), 100)
 
-	icons, _ := favicon.FindReader(bytes.NewReader(s.Body))
+	icons, err := favicon.FindReader(bytes.NewReader(s.Body))
+	if err != nil {
+		return Summary{}, err
+	}
 	for _, i := range icons {
 		fmt.Printf("%dx%d\t%s\t%s\n", i.Width, i.Height, i.FileExt, i.URL)
 	}
@@ -48,8 +57,10 @@ func (*General) summarize(s *Summaly) Summary {
 	}
 
 	if icon != "" {
-		u, _ := url.Parse(icon)
-
+		u, err := url.Parse(icon)
+		if err != nil {
+			return Summary{}, err
+		}
 		icon = s.URL.ResolveReference(u).String()
 	}
 
@@ -84,8 +95,10 @@ func (*General) summarize(s *Summaly) Summary {
 	}
 
 	if image != "" {
-		u, _ := url.Parse(image)
-
+		u, err := url.Parse(image)
+		if err != nil {
+			return Summary{}, err
+		}
 		image = s.URL.ResolveReference(u).String()
 	}
 
@@ -117,5 +130,5 @@ func (*General) summarize(s *Summaly) Summary {
 		Sitename:    sitename,
 		Sensitive:   sensitive,
 		URL:         s.URL.String(),
-	}
+	}, nil
 }

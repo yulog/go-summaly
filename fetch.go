@@ -69,6 +69,9 @@ func fetch(url *url.URL) ([]byte, error) {
 		}
 	}
 
-	body, _ := io.ReadAll(r)
+	body, err := io.ReadAll(r)
+	if err != nil {
+		return nil, err
+	}
 	return body, nil
 }
