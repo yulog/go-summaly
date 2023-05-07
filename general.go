@@ -3,6 +3,8 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"html"
+	"net/url"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/dyatlov/go-opengraph/opengraph"
@@ -33,6 +35,8 @@ func (*General) summarize(s *Summaly) Summary {
 		title = v
 	}
 
+	title = Clip(html.UnescapeString(title), 100)
+
 	icons, _ := favicon.FindReader(bytes.NewReader(s.Body))
 	for _, i := range icons {
 		fmt.Printf("%dx%d\t%s\t%s\n", i.Width, i.Height, i.FileExt, i.URL)
@@ -40,6 +44,12 @@ func (*General) summarize(s *Summaly) Summary {
 	icon := ""
 	if len(icons) > 0 {
 		icon = icons[0].URL
+	}
+
+	if icon != "" {
+		u, _ := url.Parse(icon)
+
+		icon = s.URL.ResolveReference(u).String()
 	}
 
 	description := ""
@@ -53,18 +63,50 @@ func (*General) summarize(s *Summaly) Summary {
 		description = v
 	}
 
+	description = Clip(html.UnescapeString(description), 300)
+
+	if title == description {
+		description = ""
+	}
+
 	image := ""
 	if len(og.Images) > 0 {
 		image = og.Images[0].URL
+	} else if v := doc.Find("meta[property='twitter:image']").AttrOr("content", ""); v != "" {
+		image = v
+	} else if v := doc.Find("link[rel='image_src']").AttrOr("href", ""); v != "" {
+		image = v
+	} else if v := doc.Find("link[rel='apple-touch-icon']").AttrOr("href", ""); v != "" {
+		image = v
+	} else if v := doc.Find("link[rel='apple-touch-icon image_src']").AttrOr("href", ""); v != "" {
+		image = v
 	}
+
+	if image != "" {
+		u, _ := url.Parse(image)
+
+		image = s.URL.ResolveReference(u).String()
+	}
+
+	sitename := ""
+	if og.SiteName != "" {
+		sitename = og.SiteName
+	} else if v := doc.Find("meta[name='application-name']").AttrOr("content", ""); v != "" {
+		sitename = v
+	} else {
+		sitename = s.URL.Host
+	}
+
+	sensitive := doc.Find(".tweet").AttrOr("data-possibly-sensitive", "") == "true"
+
 	return Summary{
 		Title:       title,
 		Icon:        icon,
 		Description: description,
 		Thumbnail:   image,
 		Player:      Player{},
-		Sitename:    og.SiteName,
-		Sensitive:   false,
+		Sitename:    sitename,
+		Sensitive:   sensitive,
 		URL:         s.URL.String(),
 	}
 }
