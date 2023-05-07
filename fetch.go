@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 	"mime"
@@ -8,8 +9,10 @@ import (
 	"net/url"
 
 	"golang.org/x/exp/slices"
+	"golang.org/x/net/html/charset"
 
 	"github.com/doyensec/safeurl"
+	"github.com/mattn/go-encoding"
 )
 
 var config = safeurl.GetConfigBuilder().Build()
@@ -43,12 +46,28 @@ func fetch(url *url.URL) ([]byte, error) {
 		return nil, fmt.Errorf("rejected by type: %s", mediatype)
 	}
 
+	// Bodyサイズ制限
 	// https://golang.hateblo.jp/entry/2019/10/08/215202
 	// Apache-2.0 Copyright 2018 Adam Tauber
 	// https://github.com/gocolly/colly/blob/master/http_backend.go#L198
 	var bodyReader io.Reader = resp.Body
 	bodyReader = io.LimitReader(bodyReader, limit)
 
-	body, _ := io.ReadAll(bodyReader)
+	// Encoding
+	// https://mattn.kaoriya.net/software/lang/go/20171205164150.htm
+	br := bufio.NewReader(bodyReader)
+	var r io.Reader = br
+	if data, err := br.Peek(4096); err == nil {
+		enc, name, _ := charset.DetermineEncoding(data, resp.Header.Get("content-type"))
+		if enc != nil {
+			r = enc.NewDecoder().Reader(br)
+		} else if name != "" {
+			if enc := encoding.GetEncoding(name); enc != nil {
+				r = enc.NewDecoder().Reader(br)
+			}
+		}
+	}
+
+	body, _ := io.ReadAll(r)
 	return body, nil
 }
