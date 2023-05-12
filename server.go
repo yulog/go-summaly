@@ -1,12 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 type Query struct {
@@ -34,17 +35,23 @@ func getSummaly(c echo.Context) error {
 	if err != nil {
 		return c.String(http.StatusBadRequest, "bad request")
 	}
-	fmt.Println(u)
+	if !strings.Contains(u.Hostname(), ".") {
+		return c.String(http.StatusBadRequest, "bad request")
+	}
+
 	s := Summaly{URL: u}
 	summary, err := s.Do()
 	if err != nil {
-		return c.String(http.StatusBadRequest, "bad request")
+		return c.String(http.StatusBadRequest, "bad request"+err.Error())
 	}
 	return c.JSON(http.StatusOK, summary)
 }
 
 func main() {
 	e := echo.New()
+	e.Use(middleware.Logger())
+	// e.Use(middleware.Gzip())
+	e.Use(middleware.Recover())
 	e.Validator = &Validator{validator: validator.New()}
 	e.GET("/", getSummaly)
 	e.Logger.Fatal(e.Start(":1323"))
