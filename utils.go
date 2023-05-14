@@ -42,3 +42,14 @@ func CleanupTitle(title, siteName string) string {
 
 	return title
 }
+
+// https://git.deanishe.net/deanishe/go-favicon/src/tag/v0.1.0/icon.go#L57-L65
+// used for sorting icons
+// higher number = higher priority
+var formatRank = map[string]int{
+	"image/svg":                10,
+	"image/png":                9,
+	"image/x-icon":             8, // .ico
+	"image/vnd.microsoft.icon": 8, // .ico
+	"image/jpeg":               7,
+}

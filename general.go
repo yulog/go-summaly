@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html"
 	"net/url"
+	"sort"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
@@ -48,11 +49,27 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 	if err != nil {
 		return Summary{}, err
 	}
-	for _, i := range icons {
-		fmt.Printf("%dx%d\t%s\t%s\n", i.Width, i.Height, i.FileExt, i.URL)
-	}
+	// for _, i := range icons {
+	// 	fmt.Printf("%dx%d\t%s\t%s\n", i.Width, i.Height, i.FileExt, i.URL)
+	// }
 	icon := ""
 	if len(icons) > 0 {
+		sort.Slice(icons, func(i, j int) bool {
+			a, b := icons[i], icons[j]
+			switch {
+			case formatRank[a.MimeType] > formatRank[b.MimeType]:
+				return true
+			case formatRank[a.MimeType] < formatRank[b.MimeType]:
+				return false
+			case a.Width > b.Width:
+				return true
+			default:
+				return false
+			}
+		})
+		for _, i := range icons {
+			fmt.Printf("%dx%d\t%s\t%s\n", i.Width, i.Height, i.FileExt, i.URL)
+		}
 		icon = icons[0].URL
 	}
 
