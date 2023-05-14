@@ -6,6 +6,7 @@ import (
 	"html"
 	"net/url"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
@@ -119,6 +120,49 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 		image = s.URL.ResolveReference(u).String()
 	}
 
+	tc := doc.Find("meta[property='twitter:card']").AttrOr("content", "")
+
+	playerUrl := ""
+	if v := doc.Find("meta[property='twitter:player']").AttrOr("content", ""); tc != "summary_large_image" && v != "" {
+		playerUrl = v
+	} else if v := doc.Find("meta[name='twitter:player']").AttrOr("content", ""); tc != "summary_large_image" && v != "" {
+		playerUrl = v
+	} else {
+		for _, v := range og.Videos { // og.Videosのループ無駄にやっている気がする
+			if v.URL != "" {
+				playerUrl = v.URL
+				break
+			} else if v.SecureURL != "" {
+				playerUrl = v.SecureURL
+				break
+			}
+		}
+	}
+
+	playerWidth := 0
+	if v := doc.Find("meta[property='twitter:player:width']").AttrOr("content", ""); v != "" {
+		playerWidth, _ = strconv.Atoi(v)
+	} else if v := doc.Find("meta[name='twitter:player:width']").AttrOr("content", ""); v != "" {
+		playerWidth, _ = strconv.Atoi(v)
+	} else {
+		for _, v := range og.Videos {
+			playerWidth = int(v.Width)
+			break
+		}
+	}
+
+	playerHeight := 0
+	if v := doc.Find("meta[property='twitter:player:height']").AttrOr("content", ""); v != "" {
+		playerHeight, _ = strconv.Atoi(v)
+	} else if v := doc.Find("meta[name='twitter:player:height']").AttrOr("content", ""); v != "" {
+		playerHeight, _ = strconv.Atoi(v)
+	} else {
+		for _, v := range og.Videos {
+			playerHeight = int(v.Height)
+			break
+		}
+	}
+
 	sitename := ""
 	if og.SiteName != "" {
 		sitename = og.SiteName
@@ -128,7 +172,7 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 		sitename = s.URL.Host
 	}
 
-	sitename = strings.TrimSpace(sitename)
+	sitename = html.UnescapeString(strings.TrimSpace(sitename))
 
 	title = CleanupTitle(title, sitename)
 
@@ -143,9 +187,14 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 		Icon:        icon,
 		Description: description,
 		Thumbnail:   image,
-		Player:      Player{},
-		Sitename:    sitename,
-		Sensitive:   sensitive,
-		URL:         s.URL.String(),
+		Player: Player{
+			URL:    playerUrl,
+			Width:  playerWidth,
+			Height: playerHeight,
+			Allow:  []string{"autoplay", "encrypted-media", "fullscreen"},
+		},
+		Sitename:  sitename,
+		Sensitive: sensitive,
+		URL:       s.URL.String(),
 	}, nil
 }
