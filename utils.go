@@ -48,6 +48,7 @@ func CleanupTitle(title, siteName string) string {
 // higher number = higher priority
 var formatRank = map[string]int{
 	"image/svg":                10,
+	"image/svg+xml":            10,
 	"image/png":                9,
 	"image/x-icon":             8, // .ico
 	"image/vnd.microsoft.icon": 8, // .ico

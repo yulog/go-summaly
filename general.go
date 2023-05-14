@@ -46,7 +46,7 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 
 	title = Clip(html.UnescapeString(title), 100)
 
-	icons, err := favicon.FindReader(bytes.NewReader(s.Body))
+	icons, err := favicon.FindReader(bytes.NewReader(s.Body), s.URL.Hostname())
 	if err != nil {
 		return Summary{}, err
 	}
@@ -62,14 +62,12 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 				return true
 			case formatRank[a.MimeType] < formatRank[b.MimeType]:
 				return false
-			case a.Width > b.Width:
-				return true
 			default:
-				return false
+				return a.Width > b.Width
 			}
 		})
 		for _, i := range icons {
-			fmt.Printf("%dx%d\t%s\t%s\n", i.Width, i.Height, i.FileExt, i.URL)
+			fmt.Printf("%dx%d\t%s,%s\t%s\n", i.Width, i.Height, i.FileExt, i.MimeType, i.URL)
 		}
 		icon = icons[0].URL
 	}
