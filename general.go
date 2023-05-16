@@ -46,7 +46,7 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 
 	title = Clip(html.UnescapeString(title), 100)
 
-	icons, err := favicon.FindReader(bytes.NewReader(s.Body), s.URL.Hostname())
+	icons, err := favicon.FindReader(bytes.NewReader(s.Body), s.URL.String())
 	if err != nil {
 		return Summary{}, err
 	}
