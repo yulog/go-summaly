@@ -23,7 +23,7 @@ func getOembed(doc *goquery.Document) ([]byte, error) {
 		options := fetch.New()
 		options.Accept = "application/json"
 		options.AllowType = []string{"application/json"}
-		options.Limit = 500 << 10
+		options.Limit = 500 << 10 // 500KiB
 
 		body, err := options.Do(u)
 		if err != nil {
@@ -134,9 +134,10 @@ func GetOembedPlayer(doc *goquery.Document) (OembedInfo, error) {
 
 	allow := strings.Split(iframe.AttrOr("allow", ""), ";")
 
-	allow = lo.Map(allow, func(x string, index int) string {
-		return strings.TrimSpace(x)
-	})
+	for i, v := range allow {
+		allow[i] = strings.TrimSpace(v)
+	}
+
 	allow = lo.Filter(allow, func(x string, index int) bool {
 		return !slices.Contains(ignoredList, x)
 	})

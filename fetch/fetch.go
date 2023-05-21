@@ -21,7 +21,7 @@ var client = safeurl.Client(config)
 
 var allowType = []string{"text/html", "application/xhtml+xml"}
 
-const limit = 10 << 20
+const limit = 10 << 20 // 10MiB
 
 type Options struct {
 	AllowType []string
