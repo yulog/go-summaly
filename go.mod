@@ -18,6 +18,7 @@ require (
 )
 
 require (
+	github.com/buger/jsonparser v1.1.1
 	github.com/dyatlov/go-opengraph/opengraph v0.0.0-20220524092352-606d7b1e5f8a
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
@@ -26,6 +27,7 @@ require (
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-encoding v0.0.2
 	github.com/mattn/go-isatty v0.0.18 // indirect
+	github.com/samber/lo v1.38.1
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	go.deanishe.net/favicon v0.1.0

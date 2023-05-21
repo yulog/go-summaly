@@ -180,19 +180,30 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 
 	sensitive := doc.Find(".tweet").AttrOr("data-possibly-sensitive", "") == "true"
 
+	info, err := GetOembedPlayer(doc)
+	if err != nil {
+		fmt.Println(err)
+	}
+	player := Player{}
+	if info.OK {
+		player = info.Player
+	} else {
+		player = Player{
+			URL:    playerUrl,
+			Width:  playerWidth,
+			Height: playerHeight,
+			Allow:  []string{"autoplay", "encrypted-media", "fullscreen"},
+		}
+	}
+
 	return Summary{
 		Title:       title,
 		Icon:        icon,
 		Description: description,
 		Thumbnail:   image,
-		Player: Player{
-			URL:    playerUrl,
-			Width:  playerWidth,
-			Height: playerHeight,
-			Allow:  []string{"autoplay", "encrypted-media", "fullscreen"},
-		},
-		Sitename:  sitename,
-		Sensitive: sensitive,
-		URL:       s.URL.String(),
+		Player:      player,
+		Sitename:    sitename,
+		Sensitive:   sensitive,
+		URL:         s.URL.String(),
 	}, nil
 }

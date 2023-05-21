@@ -2,6 +2,8 @@ package main
 
 import (
 	"net/url"
+
+	"github.com/yulog/go-summaly/fetch"
 )
 
 type Summaly struct {
@@ -18,7 +20,7 @@ type Summarizer interface {
 // var ss = []Summarizer{new(General)}
 
 func (s *Summaly) Do() (Summary, error) {
-	body, err := fetch(s.URL)
+	body, err := fetch.New().Do(s.URL)
 	if err != nil {
 		// fmt.Println(err)
 		return Summary{}, err

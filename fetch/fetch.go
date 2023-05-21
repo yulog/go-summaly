@@ -1,4 +1,4 @@
-package main
+package fetch
 
 import (
 	"bufio"
@@ -23,14 +23,31 @@ var allowType = []string{"text/html", "application/xhtml+xml"}
 
 const limit = 10 << 20
 
-// fetch は指定の url からBodyを取得する
-func fetch(url *url.URL) ([]byte, error) {
+type Options struct {
+	AllowType []string
+	Limit     int
+	UserAgent string
+	Accept    string
+}
+
+// New は Options を返す
+func New() Options {
+	return Options{
+		AllowType: allowType,
+		Limit:     limit,
+		UserAgent: "SummalyBot/0.0.1",
+		Accept:    "text/html, application/xhtml+xml",
+	}
+}
+
+// Do は指定の url からBodyを取得する
+func (o Options) Do(url *url.URL) ([]byte, error) {
 	req, err := http.NewRequest(http.MethodGet, url.String(), nil)
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("User-Agent", "SummalyBot/0.0.1")
-	req.Header.Set("Accept", "text/html, application/xhtml+xml")
+	req.Header.Set("User-Agent", o.UserAgent)
+	req.Header.Set("Accept", o.Accept)
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -43,7 +60,7 @@ func fetch(url *url.URL) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	if !slices.Contains(allowType, mediatype) {
+	if !slices.Contains(o.AllowType, mediatype) {
 		return nil, fmt.Errorf("rejected by type: %s", mediatype)
 	}
 
@@ -52,7 +69,7 @@ func fetch(url *url.URL) ([]byte, error) {
 	// Apache-2.0 Copyright 2018 Adam Tauber
 	// https://github.com/gocolly/colly/blob/master/http_backend.go#L198
 	var bodyReader io.Reader = resp.Body
-	bodyReader = io.LimitReader(bodyReader, limit)
+	bodyReader = io.LimitReader(bodyReader, int64(o.Limit))
 
 	// Encoding
 	// https://mattn.kaoriya.net/software/lang/go/20171205164150.htm
