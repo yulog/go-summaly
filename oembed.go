@@ -96,7 +96,7 @@ func GetOembedPlayer(doc *goquery.Document) (OembedInfo, error) {
 
 	src, exists := iframe.Attr("src")
 	if !exists {
-		return OembedInfo{OK: false}, err
+		return OembedInfo{OK: false}, fmt.Errorf("iframe src is not exists")
 	}
 
 	surl, err := url.Parse(src)
