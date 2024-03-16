@@ -12,7 +12,7 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/otiai10/opengraph/v2"
-	"go.deanishe.net/favicon"
+	"github.com/yulog/go-favicon"
 	xhtml "golang.org/x/net/html"
 )
 
@@ -49,8 +49,7 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 
 	title = Clip(html.UnescapeString(title), 100)
 
-	// TODO: parseしているため、forkしてnodeを渡すように変えたい
-	icons, err := favicon.FindReader(bytes.NewReader(s.Body), s.URL.String())
+	icons, err := favicon.New(favicon.NopSort).FindGoQueryDocument(doc, s.URL.String())
 	if err != nil {
 		return Summary{}, err
 	}
@@ -70,9 +69,6 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 		// 		return a.Width > b.Width
 		// 	}
 		// })
-		// for _, i := range icons {
-		// 	fmt.Printf("%dx%d\t%s,%s\t%s\n", i.Width, i.Height, i.FileExt, i.MimeType, i.URL)
-		// }
 
 		// cmp.Compare(a, b) -> asc
 		// cmp.Compare(b, a) -> desc

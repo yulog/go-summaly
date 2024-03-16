@@ -33,7 +33,7 @@ require (
 	github.com/samber/lo v1.39.0
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
-	go.deanishe.net/favicon v0.1.0
+	github.com/yulog/go-favicon v0.0.0-20240316141712-a2dda213b4be
 	golang.org/x/crypto v0.21.0 // indirect
 	golang.org/x/exp v0.0.0-20230515195305-f3d0a9c9a5cc // indirect
 	golang.org/x/net v0.22.0
