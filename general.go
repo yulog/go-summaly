@@ -10,8 +10,9 @@ import (
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/dyatlov/go-opengraph/opengraph"
+	"github.com/otiai10/opengraph/v2"
 	"go.deanishe.net/favicon"
+	xhtml "golang.org/x/net/html"
 )
 
 type General struct{}
@@ -21,21 +22,22 @@ func (*General) test() bool {
 }
 
 func (*General) summarize(s *Summaly) (Summary, error) {
-	og := opengraph.NewOpenGraph()
-	// fmt.Println(string(s.Body))
-	err := og.ProcessHTML(bytes.NewReader(s.Body))
+	node, err := xhtml.Parse(bytes.NewReader(s.Body))
 	if err != nil {
 		return Summary{}, err
 	}
 
-	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(s.Body))
+	ogp := &opengraph.OpenGraph{}
+	err = ogp.Walk(node)
 	if err != nil {
 		return Summary{}, err
 	}
+
+	doc := goquery.NewDocumentFromNode(node)
 
 	title := ""
-	if og.Title != "" {
-		title = og.Title
+	if ogp.Title != "" {
+		title = ogp.Title
 	} else if v := doc.Find("meta[property='twitter:title']").AttrOr("content", ""); v != "" {
 		title = v
 	} else if v := doc.Find("meta[name='twitter:title']").AttrOr("content", ""); v != "" {
@@ -46,6 +48,7 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 
 	title = Clip(html.UnescapeString(title), 100)
 
+	// TODO: parseしているため、forkしてnodeを渡すように変えたい
 	icons, err := favicon.FindReader(bytes.NewReader(s.Body), s.URL.String())
 	if err != nil {
 		return Summary{}, err
@@ -81,8 +84,8 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 	}
 
 	description := ""
-	if og.Description != "" {
-		description = og.Description
+	if ogp.Description != "" {
+		description = ogp.Description
 	} else if v := doc.Find("meta[property='twitter:description']").AttrOr("content", ""); v != "" {
 		description = v
 	} else if v := doc.Find("meta[name='twitter:description']").AttrOr("content", ""); v != "" {
@@ -98,8 +101,8 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 	}
 
 	image := ""
-	if len(og.Images) > 0 {
-		image = og.Images[0].URL
+	if len(ogp.Image) > 0 {
+		image = ogp.Image[0].URL
 	} else if v := doc.Find("meta[property='twitter:image']").AttrOr("content", ""); v != "" {
 		image = v
 	} else if v := doc.Find("link[rel='image_src']").AttrOr("href", ""); v != "" {
@@ -118,6 +121,7 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 		image = s.URL.ResolveReference(u).String()
 	}
 
+	// Twitter/X Player
 	tc := doc.Find("meta[property='twitter:card']").AttrOr("content", "")
 
 	playerUrl := ""
@@ -125,16 +129,6 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 		playerUrl = v
 	} else if v := doc.Find("meta[name='twitter:player']").AttrOr("content", ""); tc != "summary_large_image" && v != "" {
 		playerUrl = v
-	} else {
-		for _, v := range og.Videos { // og.Videosのループ無駄にやっている気がする
-			if v.URL != "" {
-				playerUrl = v.URL
-				break
-			} else if v.SecureURL != "" {
-				playerUrl = v.SecureURL
-				break
-			}
-		}
 	}
 
 	playerWidth := 0
@@ -142,11 +136,6 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 		playerWidth, _ = strconv.Atoi(v)
 	} else if v := doc.Find("meta[name='twitter:player:width']").AttrOr("content", ""); v != "" {
 		playerWidth, _ = strconv.Atoi(v)
-	} else {
-		for _, v := range og.Videos {
-			playerWidth = int(v.Width)
-			break
-		}
 	}
 
 	playerHeight := 0
@@ -154,16 +143,27 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 		playerHeight, _ = strconv.Atoi(v)
 	} else if v := doc.Find("meta[name='twitter:player:height']").AttrOr("content", ""); v != "" {
 		playerHeight, _ = strconv.Atoi(v)
-	} else {
-		for _, v := range og.Videos {
-			playerHeight = int(v.Height)
-			break
+	}
+
+	// OGP Player
+	if playerUrl == "" {
+		for _, v := range ogp.Video {
+			if v.URL != "" {
+				playerUrl = v.URL
+			} else if v.SecureURL != "" {
+				playerUrl = v.SecureURL
+			}
+			if playerUrl != "" {
+				playerWidth = v.Width
+				playerHeight = v.Height
+				break
+			}
 		}
 	}
 
 	sitename := ""
-	if og.SiteName != "" {
-		sitename = og.SiteName
+	if ogp.SiteName != "" {
+		sitename = ogp.SiteName
 	} else if v := doc.Find("meta[name='application-name']").AttrOr("content", ""); v != "" {
 		sitename = v
 	} else {
