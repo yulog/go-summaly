@@ -2,10 +2,11 @@ package main
 
 import (
 	"bytes"
+	"cmp"
 	"fmt"
 	"html"
 	"net/url"
-	"sort"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -58,16 +59,28 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 	// }
 	icon := ""
 	if len(icons) > 0 {
-		sort.Slice(icons, func(i, j int) bool {
-			a, b := icons[i], icons[j]
-			switch {
-			case formatRank[a.MimeType] > formatRank[b.MimeType]:
-				return true
-			case formatRank[a.MimeType] < formatRank[b.MimeType]:
-				return false
-			default:
-				return a.Width > b.Width
+		// sort.Slice(icons, func(i, j int) bool {
+		// 	a, b := icons[i], icons[j]
+		// 	switch {
+		// 	case formatRank[a.MimeType] > formatRank[b.MimeType]:
+		// 		return true
+		// 	case formatRank[a.MimeType] < formatRank[b.MimeType]:
+		// 		return false
+		// 	default:
+		// 		return a.Width > b.Width
+		// 	}
+		// })
+		// for _, i := range icons {
+		// 	fmt.Printf("%dx%d\t%s,%s\t%s\n", i.Width, i.Height, i.FileExt, i.MimeType, i.URL)
+		// }
+
+		// cmp.Compare(a, b) -> asc
+		// cmp.Compare(b, a) -> desc
+		slices.SortFunc(icons, func(a, b *favicon.Icon) int {
+			if n := cmp.Compare(formatRank[b.MimeType], formatRank[a.MimeType]); n != 0 {
+				return n
 			}
+			return cmp.Compare(b.Width, a.Width)
 		})
 		for _, i := range icons {
 			fmt.Printf("%dx%d\t%s,%s\t%s\n", i.Width, i.Height, i.FileExt, i.MimeType, i.URL)
