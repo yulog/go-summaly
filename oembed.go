@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/url"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -10,7 +11,6 @@ import (
 	"github.com/buger/jsonparser"
 	"github.com/samber/lo"
 	"github.com/yulog/go-summaly/fetch"
-	"golang.org/x/exp/slices"
 )
 
 func getOembed(doc *goquery.Document) ([]byte, error) {

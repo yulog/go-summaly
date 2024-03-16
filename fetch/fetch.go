@@ -7,8 +7,8 @@ import (
 	"mime"
 	"net/http"
 	"net/url"
+	"slices"
 
-	"golang.org/x/exp/slices"
 	"golang.org/x/net/html/charset"
 
 	"github.com/doyensec/safeurl"
