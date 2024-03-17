@@ -84,13 +84,14 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 		icon = icons[0].URL
 	}
 
-	if icon != "" {
-		u, err := url.Parse(icon)
-		if err != nil {
-			return Summary{}, err
-		}
-		icon = s.URL.ResolveReference(u).String()
-	}
+	// favicon library 内で実施済みっぽい
+	// if icon != "" {
+	// 	u, err := url.Parse(icon)
+	// 	if err != nil {
+	// 		return Summary{}, err
+	// 	}
+	// 	icon = s.URL.ResolveReference(u).String()
+	// }
 
 	description := ""
 	if ogp.Description != "" {
