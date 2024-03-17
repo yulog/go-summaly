@@ -20,7 +20,10 @@ type Summarizer interface {
 // var ss = []Summarizer{new(General)}
 
 func (s *Summaly) Do() (Summary, error) {
-	body, err := fetch.New().Do(s.URL)
+	options := fetch.New()
+	options.AcceptLanguage = s.Lang
+
+	body, err := options.Do(s.URL)
 	if err != nil {
 		// fmt.Println(err)
 		return Summary{}, err

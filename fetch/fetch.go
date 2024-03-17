@@ -24,10 +24,11 @@ var allowType = []string{"text/html", "application/xhtml+xml"}
 const limit = 10 << 20 // 10MiB
 
 type Options struct {
-	AllowType []string
-	Limit     int
-	UserAgent string
-	Accept    string
+	AllowType      []string
+	Limit          int
+	UserAgent      string
+	Accept         string
+	AcceptLanguage string
 }
 
 // New は Options を返す
@@ -48,6 +49,9 @@ func (o Options) Do(url *url.URL) ([]byte, error) {
 	}
 	req.Header.Set("User-Agent", o.UserAgent)
 	req.Header.Set("Accept", o.Accept)
+	if o.AcceptLanguage != "" {
+		req.Header.Set("Accept-Language", o.AcceptLanguage)
+	}
 
 	resp, err := client.Do(req)
 	if err != nil {

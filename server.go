@@ -11,8 +11,8 @@ import (
 )
 
 type Query struct {
-	URL  string `query:"url" json:"url" validate:"http_url,required"`
-	Lang string `query:"lang" json:"lang"`
+	URL  string `query:"url" json:"url" validate:"required,http_url"`
+	Lang string `query:"lang" json:"lang" validate:"omitempty,bcp47_language_tag"`
 }
 
 type Validator struct {
@@ -39,7 +39,7 @@ func getSummaly(c echo.Context) error {
 		return c.String(http.StatusBadRequest, "bad request")
 	}
 
-	s := Summaly{URL: u}
+	s := Summaly{URL: u, Lang: q.Lang}
 	summary, err := s.Do()
 	if err != nil {
 		return c.String(http.StatusBadRequest, "bad request"+err.Error())
