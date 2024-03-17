@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/url"
 
 	"github.com/yulog/go-summaly/fetch"
@@ -25,22 +26,18 @@ func (s *Summaly) Do() (Summary, error) {
 
 	body, err := options.Do(s.URL)
 	if err != nil {
-		// fmt.Println(err)
 		return Summary{}, err
 	}
 	// fmt.Println(string(body))
 	s.Body = body
-	// ss = []Summarizer{&OGP{URL: s.URL, Lang: s.Lang, Body: body}}
-	// o,_:=interface{}(s).(OGP)
-	// ss = []Summarizer{&o}
+
 	ss := []Summarizer{new(General)}
 	for _, v := range ss {
 		if v.test() {
-			// fmt.Println(v.summarize(s))
 			return v.summarize(s)
 		}
 	}
-	return Summary{}, nil
+	return Summary{}, fmt.Errorf("failed summarize")
 }
 
 type Summary struct {

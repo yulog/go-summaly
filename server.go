@@ -42,7 +42,7 @@ func getSummaly(c echo.Context) error {
 	s := Summaly{URL: u, Lang: q.Lang}
 	summary, err := s.Do()
 	if err != nil {
-		return c.String(http.StatusBadRequest, "bad request"+err.Error())
+		return c.String(http.StatusBadRequest, "bad request "+err.Error())
 	}
 	return c.JSON(http.StatusOK, summary)
 }
