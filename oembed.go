@@ -24,7 +24,6 @@ func getOembed(doc *goquery.Document) (*OembedJSON, error) {
 		options.AllowType = []string{"application/json"}
 		options.Limit = 500 << 10 // 500KiB
 
-		// body, err := options.Do(u)
 		var o OembedJSON
 		if err = options.GetJSON(u, &o); err != nil {
 			return nil, err
@@ -68,32 +67,12 @@ func GetOembedPlayer(doc *goquery.Document) (OembedInfo, error) {
 		return OembedInfo{OK: false}, err
 	}
 
-	// var o OembedJSON
-	// err = json.NewDecoder(bytes.NewReader(body)).Decode(&o)
-	// if err != nil {
-	// 	return OembedInfo{OK: false}, err
-	// }
-	// fmt.Printf("%#v\n", o)
-
-	// oversion, err := jsonparser.GetString(body, "version")
-	// if err != nil {
-	// 	return OembedInfo{OK: false}, err
-	// }
-
-	// otype, err := jsonparser.GetString(body, "type")
-	// if err != nil {
-	// 	return OembedInfo{OK: false}, err
-	// }
-
 	if o.Version != "1.0" || !slices.Contains([]string{"rich", "video"}, o.Type) {
 		return OembedInfo{OK: false}, fmt.Errorf("invalid version or type")
 	}
 
-	// ohtml, err := jsonparser.GetString(body, "html")
-	// if err != nil {
-	// 	return OembedInfo{OK: false}, err
-	// }
 	// adventar.org でhtmlの終端に\nが入っている
+	// <iframe が含まれないことだけチェックする
 	// if !strings.HasPrefix(ohtml, "<iframe") || !strings.HasSuffix(ohtml, "</iframe>") {
 	// 	return OembedInfo{OK: false}, fmt.Errorf("iframe not contain")
 	// }
@@ -126,48 +105,29 @@ func GetOembedPlayer(doc *goquery.Document) (OembedInfo, error) {
 		return OembedInfo{OK: false}, fmt.Errorf("scheme is not https")
 	}
 
-	// strwidth := ""
 	var width any
 	if v, exists := iframe.Attr("width"); exists {
 		width, err = strconv.Atoi(v)
 		if err != nil {
 			width = nil
 		}
-		// } else if v, err := jsonparser.GetString(body, "width"); err == nil {
-		// 	strwidth = v
-		// }
 	} else if v, ok := o.Width.(int); ok {
-		// strwidth = v
 		width = v
 	} else {
 		width = nil
 	}
-	// width, err = strconv.Atoi(strwidth)
-	// if err != nil {
-	// 	width = nil
-	// }
 
-	// strheight := ""
 	var height any
 	if v, exists := iframe.Attr("height"); exists {
-		// strheight = v
 		height, err = strconv.Atoi(v)
 		if err != nil {
 			height = nil
 		}
-		// } else if v, err := jsonparser.GetString(body, "height"); err == nil {
-		// 	strheight = v
-		// }
 	} else if v, ok := o.Height.(int); ok {
-		// strheight = v
 		height = v
 	} else {
 		height = nil
 	}
-	// height, err = strconv.Atoi(strheight)
-	// if err != nil {
-	// 	height = nil
-	// }
 	if height != nil && height.(int) > 1024 {
 		height = 1024
 	}
