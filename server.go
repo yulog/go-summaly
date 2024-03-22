@@ -49,6 +49,7 @@ func getSummaly(c echo.Context) error {
 
 func main() {
 	e := echo.New()
+	e.JSONSerializer = &JSONSerializer{}
 	e.Use(middleware.Logger())
 	// e.Use(middleware.Gzip())
 	e.Use(middleware.Recover())
