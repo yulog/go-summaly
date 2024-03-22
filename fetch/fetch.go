@@ -29,6 +29,8 @@ type Options struct {
 	UserAgent      string
 	Accept         string
 	AcceptLanguage string
+
+	allowPrivateIP bool
 }
 
 // New は Options を返す
@@ -38,6 +40,19 @@ func New() Options {
 		Limit:     limit,
 		UserAgent: "SummalyBot/0.0.1",
 		Accept:    "text/html, application/xhtml+xml",
+	}
+}
+
+func (o *Options) AllowPrivateIP(allow bool) *Options {
+	o.allowPrivateIP = allow
+	return o
+}
+
+func (o *Options) do(req *http.Request) (*http.Response, error) {
+	if o.allowPrivateIP {
+		return http.DefaultClient.Do(req)
+	} else {
+		return client.Do(req)
 	}
 }
 
@@ -53,7 +68,7 @@ func (o Options) Do(url *url.URL) ([]byte, error) {
 		req.Header.Set("Accept-Language", o.AcceptLanguage)
 	}
 
-	resp, err := client.Do(req)
+	resp, err := o.do(req)
 	if err != nil {
 		return nil, err
 	}
