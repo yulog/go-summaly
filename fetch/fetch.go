@@ -13,6 +13,7 @@ import (
 
 	"github.com/doyensec/safeurl"
 	"github.com/mattn/go-encoding"
+	"golang.org/x/net/html"
 )
 
 var config = safeurl.GetConfigBuilder().Build()
@@ -48,7 +49,7 @@ func (o *Options) AllowPrivateIP(allow bool) *Options {
 	return o
 }
 
-func (o *Options) do(req *http.Request) (*http.Response, error) {
+func (o *Options) clientdo(req *http.Request) (*http.Response, error) {
 	if o.allowPrivateIP {
 		return http.DefaultClient.Do(req)
 	} else {
@@ -56,33 +57,7 @@ func (o *Options) do(req *http.Request) (*http.Response, error) {
 	}
 }
 
-// Do は指定の url からBodyを取得する
-func (o *Options) Do(url *url.URL) ([]byte, error) {
-	req, err := http.NewRequest(http.MethodGet, url.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("User-Agent", o.UserAgent)
-	req.Header.Set("Accept", o.Accept)
-	if o.AcceptLanguage != "" {
-		req.Header.Set("Accept-Language", o.AcceptLanguage)
-	}
-
-	resp, err := o.do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	ct := resp.Header.Get("Content-Type")
-	mediatype, _, err := mime.ParseMediaType(ct)
-	if err != nil {
-		return nil, err
-	}
-	if !slices.Contains(o.AllowType, mediatype) {
-		return nil, fmt.Errorf("rejected by type: %s", mediatype)
-	}
-
+func (o *Options) limitEncode(resp *http.Response) (io.Reader, error) {
 	// Bodyサイズ制限
 	// https://golang.hateblo.jp/entry/2019/10/08/215202
 	// Apache-2.0 Copyright 2018 Adam Tauber
@@ -105,9 +80,99 @@ func (o *Options) Do(url *url.URL) ([]byte, error) {
 		}
 	}
 
+	return r, nil
+}
+
+// Do は指定の url からBodyを取得する
+func (o *Options) do(url *url.URL) (*http.Response, error) {
+	req, err := http.NewRequest(http.MethodGet, url.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("User-Agent", o.UserAgent)
+	req.Header.Set("Accept", o.Accept)
+	if o.AcceptLanguage != "" {
+		req.Header.Set("Accept-Language", o.AcceptLanguage)
+	}
+
+	resp, err := o.clientdo(req)
+	if err != nil {
+		return nil, err
+	}
+	// defer resp.Body.Close()
+
+	ct := resp.Header.Get("Content-Type")
+	mediatype, _, err := mime.ParseMediaType(ct)
+	if err != nil {
+		return nil, err
+	}
+	if !slices.Contains(o.AllowType, mediatype) {
+		return nil, fmt.Errorf("rejected by type: %s", mediatype)
+	}
+
+	// Bodyサイズ制限
+	// https://golang.hateblo.jp/entry/2019/10/08/215202
+	// Apache-2.0 Copyright 2018 Adam Tauber
+	// https://github.com/gocolly/colly/blob/master/http_backend.go#L198
+	// var bodyReader io.Reader = resp.Body
+	// bodyReader = io.LimitReader(bodyReader, int64(o.Limit))
+
+	// Encoding
+	// https://mattn.kaoriya.net/software/lang/go/20171205164150.htm
+	// br := bufio.NewReader(bodyReader)
+	// var r io.Reader = br
+	// if data, err := br.Peek(4096); err == nil {
+	// 	enc, name, _ := charset.DetermineEncoding(data, resp.Header.Get("content-type"))
+	// 	if enc != nil {
+	// 		r = enc.NewDecoder().Reader(br)
+	// 	} else if name != "" {
+	// 		if enc := encoding.GetEncoding(name); enc != nil {
+	// 			r = enc.NewDecoder().Reader(br)
+	// 		}
+	// 	}
+	// }
+
+	// body, err := io.ReadAll(r)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// return io.NopCloser(r), nil
+
+	return resp, nil
+}
+
+// Do は指定の url からBodyを取得する
+func (o *Options) Do(url *url.URL) ([]byte, error) {
+	resp, err := o.do(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	r, err := o.limitEncode(resp)
+	if err != nil {
+		return nil, err
+	}
 	body, err := io.ReadAll(r)
 	if err != nil {
 		return nil, err
 	}
 	return body, nil
+}
+
+// GetHtmlNode は指定の url から Body を取得し、 html.Node を返す
+func (o *Options) GetHtmlNode(url *url.URL) (*html.Node, error) {
+	resp, err := o.do(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	r, err := o.limitEncode(resp)
+	if err != nil {
+		return nil, err
+	}
+	node, err := html.Parse(r)
+	if err != nil {
+		return nil, err
+	}
+	return node, nil
 }

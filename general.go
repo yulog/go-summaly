@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"cmp"
 	"fmt"
 	"html"
@@ -13,7 +12,6 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/otiai10/opengraph/v2"
 	"github.com/yulog/go-favicon"
-	xhtml "golang.org/x/net/html"
 )
 
 type General struct{}
@@ -23,13 +21,14 @@ func (*General) test() bool {
 }
 
 func (*General) summarize(s *Summaly) (Summary, error) {
-	node, err := xhtml.Parse(bytes.NewReader(s.Body))
-	if err != nil {
-		return Summary{}, err
-	}
+	// node, err := xhtml.Parse(bytes.NewReader(s.Body))
+	node := s.Node
+	// if err != nil {
+	// 	return Summary{}, err
+	// }
 
 	ogp := &opengraph.OpenGraph{}
-	err = ogp.Walk(node)
+	err := ogp.Walk(node)
 	if err != nil {
 		return Summary{}, err
 	}
