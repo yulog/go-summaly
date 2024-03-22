@@ -134,14 +134,14 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 		playerUrl = v
 	}
 
-	playerWidth := 0
+	var playerWidth any = 0
 	if v := doc.Find("meta[property='twitter:player:width']").AttrOr("content", ""); v != "" {
 		playerWidth, _ = strconv.Atoi(v)
 	} else if v := doc.Find("meta[name='twitter:player:width']").AttrOr("content", ""); v != "" {
 		playerWidth, _ = strconv.Atoi(v)
 	}
 
-	playerHeight := 0
+	var playerHeight any = 0
 	if v := doc.Find("meta[property='twitter:player:height']").AttrOr("content", ""); v != "" {
 		playerHeight, _ = strconv.Atoi(v)
 	} else if v := doc.Find("meta[name='twitter:player:height']").AttrOr("content", ""); v != "" {
@@ -193,8 +193,8 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 	} else {
 		player = Player{
 			URL:    playerUrl,
-			Width:  playerWidth,
-			Height: playerHeight,
+			Width:  &playerWidth,
+			Height: &playerHeight,
 			Allow:  []string{"autoplay", "encrypted-media", "fullscreen"},
 		}
 	}

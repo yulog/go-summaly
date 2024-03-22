@@ -57,7 +57,7 @@ type Summary struct {
 
 type Player struct {
 	URL    string   `json:"url"`
-	Width  int      `json:"width"`
-	Height int      `json:"height"`
+	Width  *any     `json:"width"`
+	Height *any     `json:"height"`
 	Allow  []string `json:"allow"`
 }

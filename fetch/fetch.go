@@ -12,6 +12,7 @@ import (
 	"golang.org/x/net/html/charset"
 
 	"github.com/doyensec/safeurl"
+	"github.com/goccy/go-json"
 	"github.com/mattn/go-encoding"
 	"golang.org/x/net/html"
 )
@@ -139,4 +140,15 @@ func (o *Options) GetHtmlNode(url *url.URL) (*html.Node, error) {
 		return nil, err
 	}
 	return node, nil
+}
+
+// GetJSON は指定の url から Body を取得し、 out に decode する
+func (o *Options) GetJSON(url *url.URL, out any) error {
+	resp, err := o.do(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	return json.NewDecoder(o.limitEncode(resp)).Decode(out)
 }

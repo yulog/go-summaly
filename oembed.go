@@ -8,12 +8,11 @@ import (
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/buger/jsonparser"
 	"github.com/samber/lo"
 	"github.com/yulog/go-summaly/fetch"
 )
 
-func getOembed(doc *goquery.Document) ([]byte, error) {
+func getOembed(doc *goquery.Document) (*OembedJSON, error) {
 	if v, ok := doc.Find("link[type='application/json+oembed']").Attr("href"); ok {
 		u, err := url.Parse(v)
 		if err != nil {
@@ -25,12 +24,13 @@ func getOembed(doc *goquery.Document) ([]byte, error) {
 		options.AllowType = []string{"application/json"}
 		options.Limit = 500 << 10 // 500KiB
 
-		body, err := options.Do(u)
-		if err != nil {
+		// body, err := options.Do(u)
+		var o OembedJSON
+		if err = options.GetJSON(u, &o); err != nil {
 			return nil, err
 		}
 
-		return body, nil
+		return &o, nil
 	}
 	return nil, fmt.Errorf("oembed not found")
 }
@@ -54,34 +54,53 @@ var ignoredList = []string{
 	"accelerometer",
 }
 
+type OembedJSON struct {
+	Version string
+	Type    string
+	HTML    string
+	Width   any
+	Height  any
+}
+
 func GetOembedPlayer(doc *goquery.Document) (OembedInfo, error) {
-	body, err := getOembed(doc)
+	o, err := getOembed(doc)
 	if err != nil {
 		return OembedInfo{OK: false}, err
 	}
 
-	oversion, err := jsonparser.GetString(body, "version")
-	if err != nil {
-		return OembedInfo{OK: false}, err
-	}
+	// var o OembedJSON
+	// err = json.NewDecoder(bytes.NewReader(body)).Decode(&o)
+	// if err != nil {
+	// 	return OembedInfo{OK: false}, err
+	// }
+	// fmt.Printf("%#v\n", o)
 
-	otype, err := jsonparser.GetString(body, "type")
-	if err != nil {
-		return OembedInfo{OK: false}, err
-	}
+	// oversion, err := jsonparser.GetString(body, "version")
+	// if err != nil {
+	// 	return OembedInfo{OK: false}, err
+	// }
 
-	if oversion != "1.0" || !slices.Contains([]string{"rich", "video"}, otype) {
+	// otype, err := jsonparser.GetString(body, "type")
+	// if err != nil {
+	// 	return OembedInfo{OK: false}, err
+	// }
+
+	if o.Version != "1.0" || !slices.Contains([]string{"rich", "video"}, o.Type) {
 		return OembedInfo{OK: false}, fmt.Errorf("invalid version or type")
 	}
 
-	ohtml, err := jsonparser.GetString(body, "html")
-	if err != nil {
-		return OembedInfo{OK: false}, err
-	}
-	if !strings.HasPrefix(ohtml, "<iframe") || !strings.HasSuffix(ohtml, "</iframe>") {
+	// ohtml, err := jsonparser.GetString(body, "html")
+	// if err != nil {
+	// 	return OembedInfo{OK: false}, err
+	// }
+	// adventar.org でhtmlの終端に\nが入っている
+	// if !strings.HasPrefix(ohtml, "<iframe") || !strings.HasSuffix(ohtml, "</iframe>") {
+	// 	return OembedInfo{OK: false}, fmt.Errorf("iframe not contain")
+	// }
+	if !strings.Contains(o.HTML, "<iframe") {
 		return OembedInfo{OK: false}, fmt.Errorf("iframe not contain")
 	}
-	odoc, err := goquery.NewDocumentFromReader(strings.NewReader(ohtml))
+	odoc, err := goquery.NewDocumentFromReader(strings.NewReader(o.HTML))
 	if err != nil {
 		return OembedInfo{OK: false}, err
 	}
@@ -107,28 +126,49 @@ func GetOembedPlayer(doc *goquery.Document) (OembedInfo, error) {
 		return OembedInfo{OK: false}, fmt.Errorf("scheme is not https")
 	}
 
-	strwidth := ""
+	// strwidth := ""
+	var width any
 	if v, exists := iframe.Attr("width"); exists {
-		strwidth = v
-	} else if v, err := jsonparser.GetString(body, "width"); err == nil {
-		strwidth = v
+		width, err = strconv.Atoi(v)
+		if err != nil {
+			width = nil
+		}
+		// } else if v, err := jsonparser.GetString(body, "width"); err == nil {
+		// 	strwidth = v
+		// }
+	} else if v, ok := o.Width.(int); ok {
+		// strwidth = v
+		width = v
+	} else {
+		width = nil
 	}
-	width, err := strconv.Atoi(strwidth)
-	if err != nil {
-		width = 0
-	}
+	// width, err = strconv.Atoi(strwidth)
+	// if err != nil {
+	// 	width = nil
+	// }
 
-	strheight := ""
+	// strheight := ""
+	var height any
 	if v, exists := iframe.Attr("height"); exists {
-		strheight = v
-	} else if v, err := jsonparser.GetString(body, "height"); err == nil {
-		strheight = v
+		// strheight = v
+		height, err = strconv.Atoi(v)
+		if err != nil {
+			height = nil
+		}
+		// } else if v, err := jsonparser.GetString(body, "height"); err == nil {
+		// 	strheight = v
+		// }
+	} else if v, ok := o.Height.(int); ok {
+		// strheight = v
+		height = v
+	} else {
+		height = nil
 	}
-	height, err := strconv.Atoi(strheight)
-	if err != nil {
-		height = 0
-	}
-	if height > 1024 {
+	// height, err = strconv.Atoi(strheight)
+	// if err != nil {
+	// 	height = nil
+	// }
+	if height != nil && height.(int) > 1024 {
 		height = 1024
 	}
 
@@ -156,8 +196,8 @@ func GetOembedPlayer(doc *goquery.Document) (OembedInfo, error) {
 		OK: true,
 		Player: Player{
 			URL:    src,
-			Width:  width,
-			Height: height,
+			Width:  &width,
+			Height: &height,
 			Allow:  allow,
 		},
 	}, nil
