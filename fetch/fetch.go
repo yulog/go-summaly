@@ -34,8 +34,8 @@ type Options struct {
 }
 
 // New は Options を返す
-func New() Options {
-	return Options{
+func New() *Options {
+	return &Options{
 		AllowType: allowType,
 		Limit:     limit,
 		UserAgent: "SummalyBot/0.0.1",
@@ -57,7 +57,7 @@ func (o *Options) do(req *http.Request) (*http.Response, error) {
 }
 
 // Do は指定の url からBodyを取得する
-func (o Options) Do(url *url.URL) ([]byte, error) {
+func (o *Options) Do(url *url.URL) ([]byte, error) {
 	req, err := http.NewRequest(http.MethodGet, url.String(), nil)
 	if err != nil {
 		return nil, err
