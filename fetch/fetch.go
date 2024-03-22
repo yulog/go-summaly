@@ -57,7 +57,7 @@ func (o *Options) clientdo(req *http.Request) (*http.Response, error) {
 	}
 }
 
-func (o *Options) limitEncode(resp *http.Response) (io.Reader, error) {
+func (o *Options) limitEncode(resp *http.Response) io.Reader {
 	// Bodyサイズ制限
 	// https://golang.hateblo.jp/entry/2019/10/08/215202
 	// Apache-2.0 Copyright 2018 Adam Tauber
@@ -80,10 +80,10 @@ func (o *Options) limitEncode(resp *http.Response) (io.Reader, error) {
 		}
 	}
 
-	return r, nil
+	return r
 }
 
-// Do は指定の url からBodyを取得する
+// Do は指定の url から response を取得する
 func (o *Options) do(url *url.URL) (*http.Response, error) {
 	req, err := http.NewRequest(http.MethodGet, url.String(), nil)
 	if err != nil {
@@ -99,7 +99,6 @@ func (o *Options) do(url *url.URL) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
-	// defer resp.Body.Close()
 
 	ct := resp.Header.Get("Content-Type")
 	mediatype, _, err := mime.ParseMediaType(ct)
@@ -109,34 +108,6 @@ func (o *Options) do(url *url.URL) (*http.Response, error) {
 	if !slices.Contains(o.AllowType, mediatype) {
 		return nil, fmt.Errorf("rejected by type: %s", mediatype)
 	}
-
-	// Bodyサイズ制限
-	// https://golang.hateblo.jp/entry/2019/10/08/215202
-	// Apache-2.0 Copyright 2018 Adam Tauber
-	// https://github.com/gocolly/colly/blob/master/http_backend.go#L198
-	// var bodyReader io.Reader = resp.Body
-	// bodyReader = io.LimitReader(bodyReader, int64(o.Limit))
-
-	// Encoding
-	// https://mattn.kaoriya.net/software/lang/go/20171205164150.htm
-	// br := bufio.NewReader(bodyReader)
-	// var r io.Reader = br
-	// if data, err := br.Peek(4096); err == nil {
-	// 	enc, name, _ := charset.DetermineEncoding(data, resp.Header.Get("content-type"))
-	// 	if enc != nil {
-	// 		r = enc.NewDecoder().Reader(br)
-	// 	} else if name != "" {
-	// 		if enc := encoding.GetEncoding(name); enc != nil {
-	// 			r = enc.NewDecoder().Reader(br)
-	// 		}
-	// 	}
-	// }
-
-	// body, err := io.ReadAll(r)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// return io.NopCloser(r), nil
 
 	return resp, nil
 }
@@ -148,11 +119,7 @@ func (o *Options) Do(url *url.URL) ([]byte, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	r, err := o.limitEncode(resp)
-	if err != nil {
-		return nil, err
-	}
-	body, err := io.ReadAll(r)
+	body, err := io.ReadAll(o.limitEncode(resp))
 	if err != nil {
 		return nil, err
 	}
@@ -166,11 +133,8 @@ func (o *Options) GetHtmlNode(url *url.URL) (*html.Node, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	r, err := o.limitEncode(resp)
-	if err != nil {
-		return nil, err
-	}
-	node, err := html.Parse(r)
+
+	node, err := html.Parse(o.limitEncode(resp))
 	if err != nil {
 		return nil, err
 	}

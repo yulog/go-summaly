@@ -21,19 +21,13 @@ func (*General) test() bool {
 }
 
 func (*General) summarize(s *Summaly) (Summary, error) {
-	// node, err := xhtml.Parse(bytes.NewReader(s.Body))
-	node := s.Node
-	// if err != nil {
-	// 	return Summary{}, err
-	// }
-
 	ogp := &opengraph.OpenGraph{}
-	err := ogp.Walk(node)
+	err := ogp.Walk(s.Node)
 	if err != nil {
 		return Summary{}, err
 	}
 
-	doc := goquery.NewDocumentFromNode(node)
+	doc := goquery.NewDocumentFromNode(s.Node)
 
 	title := ""
 	if ogp.Title != "" {
