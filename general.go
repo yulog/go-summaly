@@ -126,12 +126,12 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 		playerUrl = m.TwitterPlayer
 	}
 
-	var playerWidth any = 0
+	var playerWidth any
 	if m.TwitterPlayerWidth != "" {
 		playerWidth, _ = strconv.Atoi(m.TwitterPlayerWidth)
 	}
 
-	var playerHeight any = 0
+	var playerHeight any
 	if m.TwitterPlayerHeight != "" {
 		playerHeight, _ = strconv.Atoi(m.TwitterPlayerHeight)
 	}

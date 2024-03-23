@@ -21,7 +21,6 @@ require (
 )
 
 require (
-	github.com/buger/jsonparser v1.1.1
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/goccy/go-json v0.10.2
