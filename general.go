@@ -29,13 +29,13 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 
 	doc := goquery.NewDocumentFromNode(s.Node)
 
+	m := meta(doc)
+
 	title := ""
 	if ogp.Title != "" {
 		title = ogp.Title
-	} else if v := doc.Find("meta[property='twitter:title']").AttrOr("content", ""); v != "" {
-		title = v
-	} else if v := doc.Find("meta[name='twitter:title']").AttrOr("content", ""); v != "" {
-		title = v
+	} else if m.TwitterTitle != "" {
+		title = m.TwitterTitle
 	} else if v := doc.Find("title").Text(); v != "" {
 		title = v
 	}
@@ -71,9 +71,9 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 			}
 			return cmp.Compare(b.Width, a.Width)
 		})
-		for _, i := range icons {
-			fmt.Printf("%dx%d\t%s,%s\t%s\n", i.Width, i.Height, i.FileExt, i.MimeType, i.URL)
-		}
+		// for _, i := range icons {
+		// 	fmt.Printf("%dx%d\t%s,%s\t%s\n", i.Width, i.Height, i.FileExt, i.MimeType, i.URL)
+		// }
 		icon = icons[0].URL
 	}
 
@@ -86,16 +86,7 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 	// 	icon = s.URL.ResolveReference(u).String()
 	// }
 
-	description := ""
-	if ogp.Description != "" {
-		description = ogp.Description
-	} else if v := doc.Find("meta[property='twitter:description']").AttrOr("content", ""); v != "" {
-		description = v
-	} else if v := doc.Find("meta[name='twitter:description']").AttrOr("content", ""); v != "" {
-		description = v
-	} else if v := doc.Find("meta[name='description']").AttrOr("content", ""); v != "" {
-		description = v
-	}
+	description := cmp.Or(ogp.Description, m.TwitterDescription, m.Description)
 
 	description = Clip(html.UnescapeString(description), 300)
 
@@ -106,13 +97,17 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 	image := ""
 	if len(ogp.Image) > 0 {
 		image = ogp.Image[0].URL
-	} else if v := doc.Find("meta[property='twitter:image']").AttrOr("content", ""); v != "" {
-		image = v
-	} else if v := doc.Find("link[rel='image_src']").AttrOr("href", ""); v != "" {
-		image = v
-	} else if v := doc.Find("link[rel='apple-touch-icon']").AttrOr("href", ""); v != "" {
-		image = v
-	} else if v := doc.Find("link[rel='apple-touch-icon image_src']").AttrOr("href", ""); v != "" {
+	} else if m.TwitterImage != "" {
+		image = m.TwitterImage
+		// } else if v := doc.Find("link[rel='image_src']").AttrOr("href", ""); v != "" {
+		// 	image = v
+		// } else if v := doc.Find("link[rel='apple-touch-icon']").AttrOr("href", ""); v != "" {
+		// 	image = v
+		// } else if v := doc.Find("link[rel='apple-touch-icon image_src']").AttrOr("href", ""); v != "" {
+		// 	image = v
+		// }
+	} else if v, exists := link(doc); exists {
+		// もとのような優先順位がなくなり、順不同で初めに見つかったものを採用
 		image = v
 	}
 
@@ -125,27 +120,20 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 	}
 
 	// Twitter/X Player
-	tc := doc.Find("meta[property='twitter:card']").AttrOr("content", "")
 
 	playerUrl := ""
-	if v := doc.Find("meta[property='twitter:player']").AttrOr("content", ""); tc != "summary_large_image" && v != "" {
-		playerUrl = v
-	} else if v := doc.Find("meta[name='twitter:player']").AttrOr("content", ""); tc != "summary_large_image" && v != "" {
-		playerUrl = v
+	if m.TwitterCard != "summary_large_image" && m.TwitterPlayer != "" {
+		playerUrl = m.TwitterPlayer
 	}
 
 	var playerWidth any = 0
-	if v := doc.Find("meta[property='twitter:player:width']").AttrOr("content", ""); v != "" {
-		playerWidth, _ = strconv.Atoi(v)
-	} else if v := doc.Find("meta[name='twitter:player:width']").AttrOr("content", ""); v != "" {
-		playerWidth, _ = strconv.Atoi(v)
+	if m.TwitterPlayerWidth != "" {
+		playerWidth, _ = strconv.Atoi(m.TwitterPlayerWidth)
 	}
 
 	var playerHeight any = 0
-	if v := doc.Find("meta[property='twitter:player:height']").AttrOr("content", ""); v != "" {
-		playerHeight, _ = strconv.Atoi(v)
-	} else if v := doc.Find("meta[name='twitter:player:height']").AttrOr("content", ""); v != "" {
-		playerHeight, _ = strconv.Atoi(v)
+	if m.TwitterPlayerHeight != "" {
+		playerHeight, _ = strconv.Atoi(m.TwitterPlayerHeight)
 	}
 
 	// OGP Player
@@ -164,14 +152,7 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 		}
 	}
 
-	sitename := ""
-	if ogp.SiteName != "" {
-		sitename = ogp.SiteName
-	} else if v := doc.Find("meta[name='application-name']").AttrOr("content", ""); v != "" {
-		sitename = v
-	} else {
-		sitename = s.URL.Host
-	}
+	sitename := cmp.Or(ogp.SiteName, m.ApplicationName, s.URL.Host)
 
 	sitename = html.UnescapeString(strings.TrimSpace(sitename))
 
@@ -209,4 +190,86 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 		Sensitive:   sensitive,
 		URL:         s.URL.String(),
 	}, nil
+}
+
+func link(doc *goquery.Document) (val string, exists bool) {
+	doc.Find("link").EachWithBreak(func(i int, s *goquery.Selection) bool {
+		rel, _ := s.Attr("rel")
+		switch rel {
+		case "image_src", "apple-touch-icon", "apple-touch-icon image_src":
+			val, exists = s.Attr("href")
+			return false
+		}
+		// val, exists = "", false
+		return true
+	})
+	return
+}
+
+type metaInfo struct {
+	TwitterTitle        string
+	TwitterDescription  string
+	Description         string
+	TwitterImage        string
+	TwitterCard         string
+	TwitterPlayer       string
+	TwitterPlayerWidth  string
+	TwitterPlayerHeight string
+	ApplicationName     string
+}
+
+func meta(doc *goquery.Document) (m metaInfo) {
+	// var m metaInfo
+	doc.Find("meta").EachWithBreak(func(i int, s *goquery.Selection) bool {
+		prop, _ := s.Attr("property")
+		name, _ := s.Attr("name")
+		content, _ := s.Attr("content")
+
+		prop = cmp.Or(prop, name)
+
+		if prop == "" || content == "" {
+			return true
+		}
+
+		switch prop {
+		case "twitter:title":
+			if m.TwitterTitle == "" {
+				m.TwitterTitle = content
+			}
+		case "twitter:description":
+			if m.TwitterDescription == "" {
+				m.TwitterDescription = content
+			}
+		case "description":
+			if m.Description == "" {
+				m.Description = content
+			}
+		case "twitter:image":
+			if m.TwitterImage == "" {
+				m.TwitterImage = content
+			}
+		case "twitter:card":
+			if m.TwitterCard == "" {
+				m.TwitterCard = content
+			}
+		case "twitter:player":
+			if m.TwitterPlayer == "" {
+				m.TwitterPlayer = content
+			}
+		case "twitter:player:width":
+			if m.TwitterPlayerWidth == "" {
+				m.TwitterPlayerWidth = content
+			}
+		case "twitter:player:height":
+			if m.TwitterPlayerHeight == "" {
+				m.TwitterPlayerHeight = content
+			}
+		case "application-name":
+			if m.ApplicationName == "" {
+				m.ApplicationName = content
+			}
+		}
+		return true
+	})
+	return
 }
