@@ -164,7 +164,7 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 
 	sensitive := doc.Find(".tweet").AttrOr("data-possibly-sensitive", "") == "true"
 
-	info, err := GetOembedPlayer(doc)
+	info, err := GetOembedPlayer(s.URL, doc)
 	if err != nil {
 		fmt.Println(err)
 	}
