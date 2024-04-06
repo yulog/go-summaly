@@ -196,11 +196,7 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 					URL:    "https://example.com/",
 					Width:  convptr(float64(500)),
 					Height: convptr(float64(300)),
-					Allow: []string{
-						"autoplay",
-						"encrypted-media",
-						"fullscreen",
-					},
+					Allow:  []string{},
 				},
 			},
 			file:     "oembed.json",
