@@ -114,6 +114,8 @@ func GetOembedPlayer(doc *goquery.Document) (OembedInfo, error) {
 		}
 	} else if v, ok := o.Width.(int); ok {
 		width = v
+	} else if v, ok := o.Width.(float64); ok {
+		width = v
 	} else {
 		width = nil
 	}
@@ -126,11 +128,17 @@ func GetOembedPlayer(doc *goquery.Document) (OembedInfo, error) {
 		}
 	} else if v, ok := o.Height.(int); ok {
 		height = v
+	} else if v, ok := o.Height.(float64); ok {
+		height = v
 	} else {
 		height = nil
 	}
-	if height != nil && height.(int) > 1024 {
-		height = 1024
+	if height != nil {
+		if i, ok := height.(int); ok && i > 1024 {
+			height = 1024
+		} else if i, ok := height.(float64); ok && i > 1024 {
+			height = 1024
+		}
 	}
 
 	allow := strings.Split(iframe.AttrOr("allow", ""), ";")
