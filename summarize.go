@@ -26,13 +26,11 @@ func (s *Summaly) Do() (Summary, error) {
 	options := fetch.New()
 	options.AcceptLanguage = s.Lang
 
-	// body, err := options.Do(s.URL)
 	node, err := options.GetHtmlNode(s.URL)
 	if err != nil {
 		return Summary{}, err
 	}
 	// fmt.Println(string(body))
-	// s.Body = body
 	s.Node = node
 
 	ss := []Summarizer{new(General)}

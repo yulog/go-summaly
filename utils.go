@@ -6,14 +6,15 @@ import (
 	"strings"
 )
 
-func ChooseOr(ss ...string) string {
-	for _, v := range ss {
-		if v != "" {
-			return v
-		}
-	}
-	return ""
-}
+// cmp.Orを使えば良さそう
+// func ChooseOr(ss ...string) string {
+// 	for _, v := range ss {
+// 		if v != "" {
+// 			return v
+// 		}
+// 	}
+// 	return ""
+// }
 
 // Clip は s を max で切り取る
 func Clip(s string, max int) string {
