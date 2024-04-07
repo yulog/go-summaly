@@ -131,7 +131,7 @@ func GetOembedPlayer(doc *goquery.Document) (OembedInfo, error) {
 	} else if v, ok := o.Height.(float64); ok {
 		height = v
 	} else {
-		height = nil
+		return OembedInfo{OK: false}, fmt.Errorf("height is incorrect")
 	}
 	if height != nil {
 		if i, ok := height.(int); ok && i > 1024 {
