@@ -2,9 +2,11 @@ package main
 
 import (
 	"html/template"
+	"io/fs"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"os"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -343,6 +345,65 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 				t.Errorf("(-want +got):\n%s", diff)
 			}
 		})
+	}
+}
+
+func TestSummaly_Do_oEmbedInvalid(t *testing.T) {
+	tests := []struct {
+		name     string
+		s        *Summaly
+		want     Summary
+		wantErr  bool
+		file     string
+		template string
+	}{
+		// TODO: Add test cases.
+		{
+			name: "oEmbed invalidity test:",
+			s: &Summaly{
+				URL: nil,
+			},
+			want: Summary{
+				Icon: "/apple-touch-icon.png",
+				Player: Player{
+					URL:    "",
+					Width:  &nilany,
+					Height: &nilany,
+					Allow:  []string{},
+				},
+			},
+			file:     "dummy",
+			template: "oembed.html",
+		},
+	}
+	paths, err := fs.Glob(os.DirFS("testdata/oembed/invalid"), "*.json")
+	if err != nil {
+		return
+	}
+	for _, path := range paths {
+		for _, tt := range tests {
+			t.Run(tt.name+path, func(t *testing.T) {
+				_, serverURL, teardown := setupServer(tt.template, "invalid/"+path)
+				defer teardown()
+
+				u, _ := url.Parse(serverURL)
+				// テスト用サーバのURLをセット。この方法は良くないかも？
+				tt.s.URL = u
+				tt.want.Title = u.Host
+				tt.want.Icon = u.String() + tt.want.Icon
+				tt.want.Sitename = u.Host
+				tt.want.URL = u.String()
+
+				got, err := tt.s.Do()
+				if (err != nil) != tt.wantErr {
+					t.Errorf("Summaly.Do() error = %v, wantErr %v", err, tt.wantErr)
+					return
+				}
+				if diff := cmp.Diff(tt.want, got); diff != "" {
+					t.Errorf("(-want +got):\n%s", diff)
+				}
+			})
+		}
 	}
 }
 
