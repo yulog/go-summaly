@@ -28,6 +28,7 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 	}
 
 	doc := goquery.NewDocumentFromNode(s.Node)
+	doc.Url = s.URL // URLをセット(oEmbedで使う)
 
 	m := meta(doc)
 
@@ -164,7 +165,7 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 
 	sensitive := doc.Find(".tweet").AttrOr("data-possibly-sensitive", "") == "true"
 
-	info, err := GetOembedPlayer(s.URL, doc)
+	info, err := GetOembedPlayer(doc)
 	if err != nil {
 		fmt.Println(err)
 	}
