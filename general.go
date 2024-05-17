@@ -43,7 +43,7 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 
 	title = Clip(html.UnescapeString(title), 100)
 
-	icons, err := favicon.New(favicon.NopSort).FindGoQueryDocument(doc, s.URL.String())
+	icons, err := favicon.New(favicon.NopSort, favicon.IgnoreWellKnown).FindGoQueryDocument(doc, s.URL.String())
 	if err != nil {
 		return Summary{}, err
 	}
@@ -163,6 +163,7 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 		title = sitename
 	}
 
+	// 使えないらしい
 	sensitive := doc.Find(".tweet").AttrOr("data-possibly-sensitive", "") == "true"
 
 	info, err := GetOembedPlayer(doc)
