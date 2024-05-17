@@ -19,6 +19,17 @@ func convptr[T any](i T) *any {
 
 var nilany any = nil
 
+var emptyPlayer = Player{
+	URL:    "",
+	Width:  &nilany,
+	Height: &nilany,
+	Allow: []string{
+		"autoplay",
+		"encrypted-media",
+		"fullscreen",
+	},
+}
+
 var tmp = template.Must(template.ParseGlob("testdata/htmls/*"))
 
 func setupServer(template, file string) (mux *http.ServeMux, serverURL string, teardown func()) {
@@ -32,6 +43,190 @@ func setupServer(template, file string) (mux *http.ServeMux, serverURL string, t
 	})
 
 	return mux, ts.URL, ts.Close
+}
+
+func TestSummaly_Do_NoFavicon(t *testing.T) {
+	tests := []struct {
+		name     string
+		s        *Summaly
+		want     Summary
+		wantErr  bool
+		file     string
+		template string
+	}{
+		// TODO: Add test cases.
+		{
+			name: "title cleanup",
+			s: &Summaly{
+				URL: nil,
+			},
+			want: Summary{
+				Title:  "Strawberry Pasta",
+				Icon:   "",
+				Player: emptyPlayer,
+			},
+			file:     "oembed.json",
+			template: "no-favicon.html",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, serverURL, teardown := setupServer(tt.template, tt.file)
+			defer teardown()
+
+			u, _ := url.Parse(serverURL)
+			// テスト用サーバのURLをセット。この方法は良くないかも？
+			tt.s.URL = u
+			tt.want.URL = u.String()
+			tt.want.Sitename = u.Host
+
+			got, err := tt.s.Do()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Summaly.Do() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("(-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func TestSummaly_Do_TitleCleanup(t *testing.T) {
+	tests := []struct {
+		name     string
+		s        *Summaly
+		want     Summary
+		wantErr  bool
+		file     string
+		template string
+	}{
+		// TODO: Add test cases.
+		{
+			name: "title cleanup",
+			s: &Summaly{
+				URL: nil,
+			},
+			want: Summary{
+				Title:    "Strawberry Pasta",
+				Player:   emptyPlayer,
+				Sitename: "Alice's Site",
+			},
+			file:     "oembed.json",
+			template: "dirty-title.html",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, serverURL, teardown := setupServer(tt.template, tt.file)
+			defer teardown()
+
+			u, _ := url.Parse(serverURL)
+			// テスト用サーバのURLをセット。この方法は良くないかも？
+			tt.s.URL = u
+			tt.want.URL = u.String()
+
+			got, err := tt.s.Do()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Summaly.Do() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("(-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func TestSummaly_Do_OGP(t *testing.T) {
+	tests := []struct {
+		name     string
+		s        *Summaly
+		want     Summary
+		wantErr  bool
+		file     string
+		template string
+	}{
+		// TODO: Add test cases.
+		{
+			name: "title",
+			s: &Summaly{
+				URL: nil,
+			},
+			want: Summary{
+				Title:    "Strawberry Pasta",
+				Player:   emptyPlayer,
+				Sitename: "WANT_URL",
+			},
+			file:     "oembed.json",
+			template: "og-title.html",
+		},
+		{
+			name: "description",
+			s: &Summaly{
+				URL: nil,
+			},
+			want: Summary{
+				Title:       "YEE HAW",
+				Description: "Strawberry Pasta",
+				Player:      emptyPlayer,
+				Sitename:    "WANT_URL",
+			},
+			file:     "oembed.json",
+			template: "og-description.html",
+		},
+		{
+			name: "site_name",
+			s: &Summaly{
+				URL: nil,
+			},
+			want: Summary{
+				Title:    "YEE HAW",
+				Player:   emptyPlayer,
+				Sitename: "Strawberry Pasta",
+			},
+			file:     "oembed.json",
+			template: "og-site_name.html",
+		},
+		{
+			name: "thumbnail",
+			s: &Summaly{
+				URL: nil,
+			},
+			want: Summary{
+				Title:     "YEE HAW",
+				Icon:      "https://himasaku.net/himasaku.png",
+				Thumbnail: "https://himasaku.net/himasaku.png",
+				Player:    emptyPlayer,
+				Sitename:  "WANT_URL",
+			},
+			file:     "oembed.json",
+			template: "og-image.html",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, serverURL, teardown := setupServer(tt.template, tt.file)
+			defer teardown()
+
+			u, _ := url.Parse(serverURL)
+			// テスト用サーバのURLをセット。この方法は良くないかも？
+			tt.s.URL = u
+			if tt.want.Sitename == "WANT_URL" {
+				tt.want.Sitename = u.Host
+			}
+			tt.want.URL = u.String()
+
+			got, err := tt.s.Do()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Summaly.Do() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("(-want +got):\n%s", diff)
+			}
+		})
+	}
 }
 
 func TestSummaly_Do_oEmbed(t *testing.T) {
@@ -50,7 +245,6 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 				URL: nil,
 			},
 			want: Summary{
-				Icon: "/apple-touch-icon.png",
 				Player: Player{
 					URL:    "https://example.com/",
 					Width:  convptr(float64(500)),
@@ -67,7 +261,6 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 				URL: nil,
 			},
 			want: Summary{
-				Icon: "/apple-touch-icon.png",
 				Player: Player{
 					URL:    "https://example.com/",
 					Width:  convptr(float64(500)),
@@ -84,7 +277,6 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 				URL: nil,
 			},
 			want: Summary{
-				Icon: "/apple-touch-icon.png",
 				Player: Player{
 					URL:    "https://example.com/",
 					Width:  &nilany,
@@ -101,7 +293,6 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 				URL: nil,
 			},
 			want: Summary{
-				Icon: "/apple-touch-icon.png",
 				Player: Player{
 					URL:    "https://example.com/",
 					Width:  convptr(float64(500)),
@@ -118,7 +309,6 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 				URL: nil,
 			},
 			want: Summary{
-				Icon: "/apple-touch-icon.png",
 				Player: Player{
 					URL:    "https://example.com/",
 					Width:  convptr(float64(500)),
@@ -135,7 +325,6 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 				URL: nil,
 			},
 			want: Summary{
-				Icon: "/apple-touch-icon.png",
 				Player: Player{
 					URL:    "https://example.com/",
 					Width:  convptr(float64(500)),
@@ -152,7 +341,6 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 				URL: nil,
 			},
 			want: Summary{
-				Icon: "/apple-touch-icon.png",
 				Player: Player{
 					URL:    "https://example.com/",
 					Width:  convptr(float64(500)),
@@ -176,7 +364,6 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 				URL: nil,
 			},
 			want: Summary{
-				Icon: "/apple-touch-icon.png",
 				Player: Player{
 					URL:    "https://example.com/",
 					Width:  convptr(float64(500)),
@@ -193,7 +380,6 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 				URL: nil,
 			},
 			want: Summary{
-				Icon: "/apple-touch-icon.png",
 				Player: Player{
 					URL:    "https://example.com/",
 					Width:  convptr(float64(500)),
@@ -210,18 +396,8 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 				URL: nil,
 			},
 			want: Summary{
-				Icon:        "/apple-touch-icon.png",
 				Description: "nonexistent",
-				Player: Player{
-					URL:    "",
-					Width:  &nilany,
-					Height: &nilany,
-					Allow: []string{
-						"autoplay",
-						"encrypted-media",
-						"fullscreen",
-					},
-				},
+				Player:      emptyPlayer,
 			},
 			file:     "oembed.json",
 			template: "oembed-nonexistent-path.html",
@@ -232,18 +408,8 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 				URL: nil,
 			},
 			want: Summary{
-				Icon:        "/apple-touch-icon.png",
 				Description: "wrong url",
-				Player: Player{
-					URL:    "",
-					Width:  &nilany,
-					Height: &nilany,
-					Allow: []string{
-						"autoplay",
-						"encrypted-media",
-						"fullscreen",
-					},
-				},
+				Player:      emptyPlayer,
 			},
 			file:     "oembed.json",
 			template: "oembed-wrong-path.html",
@@ -254,7 +420,6 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 				URL: nil,
 			},
 			want: Summary{
-				Icon:        "/apple-touch-icon.png",
 				Description: "blobcats rule the world",
 				Player: Player{
 					URL:    "https://example.com/",
@@ -272,18 +437,8 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 				URL: nil,
 			},
 			want: Summary{
-				Icon:        "/apple-touch-icon.png",
 				Description: "blobcats rule the world",
-				Player: Player{
-					URL:    "",
-					Width:  &nilany,
-					Height: &nilany,
-					Allow: []string{
-						"autoplay",
-						"encrypted-media",
-						"fullscreen",
-					},
-				},
+				Player:      emptyPlayer,
 			},
 			file:     "invalid/oembed-insecure.json",
 			template: "oembed-and-og.html",
@@ -294,7 +449,6 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 				URL: nil,
 			},
 			want: Summary{
-				Icon: "/apple-touch-icon.png",
 				Player: Player{
 					URL:    "https://example.com/",
 					Width:  convptr(float64(500)),
@@ -311,7 +465,6 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 				URL: nil,
 			},
 			want: Summary{
-				Icon: "/apple-touch-icon.png",
 				Player: Player{
 					URL:    "https://example.com/",
 					Width:  &nilany,
@@ -332,7 +485,9 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 			// テスト用サーバのURLをセット。この方法は良くないかも？
 			tt.s.URL = u
 			tt.want.Title = u.Host
-			tt.want.Icon = u.String() + tt.want.Icon
+			if tt.want.Icon != "" {
+				tt.want.Icon = u.String() + tt.want.Icon
+			}
 			tt.want.Sitename = u.Host
 			tt.want.URL = u.String()
 
@@ -390,7 +545,9 @@ func TestSummaly_Do_oEmbedInvalid(t *testing.T) {
 				// テスト用サーバのURLをセット。この方法は良くないかも？
 				tt.s.URL = u
 				tt.want.Title = u.Host
-				tt.want.Icon = u.String() + tt.want.Icon
+				if tt.want.Icon != "" {
+					tt.want.Icon = u.String() + tt.want.Icon
+				}
 				tt.want.Sitename = u.Host
 				tt.want.URL = u.String()
 
