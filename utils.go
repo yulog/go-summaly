@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+	"unicode/utf8"
 )
 
 // cmp.Orを使えば良さそう
@@ -23,7 +24,7 @@ func Clip(s string, max int) string {
 		return s
 	}
 
-	if len(s) > max {
+	if utf8.RuneCountInString(s) > max {
 		s = string([]rune(s)[0:max]) + "..."
 	}
 
