@@ -5,10 +5,10 @@ go 1.22
 toolchain go1.22.0
 
 require (
-	github.com/PuerkitoBio/goquery v1.9.1
+	github.com/PuerkitoBio/goquery v1.9.2
 	github.com/doyensec/safeurl v0.2.1
-	github.com/go-playground/validator/v10 v10.19.0
-	github.com/labstack/echo/v4 v4.11.4
+	github.com/go-playground/validator/v10 v10.20.0
+	github.com/labstack/echo/v4 v4.12.0
 )
 
 require (
@@ -17,7 +17,7 @@ require (
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	golang.org/x/time v0.5.0 // indirect
-	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
+	golang.org/x/xerrors v0.0.0-20231012003039-104605ab7028 // indirect
 )
 
 require (
@@ -34,10 +34,10 @@ require (
 	github.com/samber/lo v1.39.0
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
-	github.com/yulog/go-favicon v0.0.0-20240316141712-a2dda213b4be
-	golang.org/x/crypto v0.21.0 // indirect
-	golang.org/x/exp v0.0.0-20230515195305-f3d0a9c9a5cc // indirect
-	golang.org/x/net v0.22.0
-	golang.org/x/sys v0.18.0 // indirect
-	golang.org/x/text v0.14.0 // indirect
+	github.com/yulog/go-favicon v0.0.0-20240317061907-5201576abfcd
+	golang.org/x/crypto v0.23.0 // indirect
+	golang.org/x/exp v0.0.0-20240506185415-9bf2ced13842 // indirect
+	golang.org/x/net v0.25.0
+	golang.org/x/sys v0.20.0 // indirect
+	golang.org/x/text v0.15.0 // indirect
 )
