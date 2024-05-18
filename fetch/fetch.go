@@ -27,7 +27,7 @@ const limit = 10 << 20 // 10MiB
 
 type Options struct {
 	AllowType      []string
-	Limit          int
+	Limit          int64
 	UserAgent      string
 	Accept         string
 	AcceptLanguage string
@@ -64,7 +64,7 @@ func (o *Options) limitEncode(resp *http.Response) io.Reader {
 	// Apache-2.0 Copyright 2018 Adam Tauber
 	// https://github.com/gocolly/colly/blob/master/http_backend.go#L198
 	var bodyReader io.Reader = resp.Body
-	bodyReader = io.LimitReader(bodyReader, int64(o.Limit))
+	bodyReader = io.LimitReader(bodyReader, o.Limit)
 
 	// Encoding
 	// https://mattn.kaoriya.net/software/lang/go/20171205164150.htm
