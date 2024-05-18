@@ -25,6 +25,7 @@ type Summarizer interface {
 func (s *Summaly) Do() (Summary, error) {
 	options := fetch.New()
 	options.AcceptLanguage = s.Lang
+	options = options.AllowPrivateIP(config.AllowPrivateIP)
 
 	node, err := options.GetHtmlNode(s.URL)
 	if err != nil {

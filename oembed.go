@@ -24,6 +24,7 @@ func getOembed(doc *goquery.Document) (*OembedJSON, error) {
 		options.Accept = "application/json"
 		options.AllowType = []string{"application/json"}
 		options.Limit = 500 << 10 // 500KiB
+		options = options.AllowPrivateIP(config.AllowPrivateIP)
 
 		var o OembedJSON
 		if err = options.GetJSON(u, &o); err != nil {

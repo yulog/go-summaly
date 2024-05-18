@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
@@ -48,6 +49,8 @@ func getSummaly(c echo.Context) error {
 }
 
 func main() {
+	loadConfig()
+
 	e := echo.New()
 	e.JSONSerializer = &JSONSerializer{}
 	e.Use(middleware.Logger())
@@ -55,5 +58,5 @@ func main() {
 	e.Use(middleware.Recover())
 	e.Validator = &Validator{validator: validator.New()}
 	e.GET("/", getSummaly)
-	e.Logger.Fatal(e.Start(":1323"))
+	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", config.Port)))
 }

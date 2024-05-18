@@ -46,6 +46,9 @@ func setupServer(template, file string) (mux *http.ServeMux, serverURL string, t
 }
 
 func TestSummaly_Do_NoFavicon(t *testing.T) {
+	t.Setenv("ALLOW_PRIVATE_IP", "true")
+	loadConfig()
+
 	tests := []struct {
 		name     string
 		s        *Summaly
@@ -93,6 +96,9 @@ func TestSummaly_Do_NoFavicon(t *testing.T) {
 }
 
 func TestSummaly_Do_TitleCleanup(t *testing.T) {
+	t.Setenv("ALLOW_PRIVATE_IP", "true")
+	loadConfig()
+
 	tests := []struct {
 		name     string
 		s        *Summaly
@@ -139,6 +145,9 @@ func TestSummaly_Do_TitleCleanup(t *testing.T) {
 }
 
 func TestSummaly_Do_OGP(t *testing.T) {
+	t.Setenv("ALLOW_PRIVATE_IP", "true")
+	loadConfig()
+
 	tests := []struct {
 		name     string
 		s        *Summaly
@@ -230,6 +239,9 @@ func TestSummaly_Do_OGP(t *testing.T) {
 }
 
 func TestSummaly_Do_oEmbed(t *testing.T) {
+	t.Setenv("ALLOW_PRIVATE_IP", "true")
+	loadConfig()
+
 	tests := []struct {
 		name     string
 		s        *Summaly
@@ -504,6 +516,9 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 }
 
 func TestSummaly_Do_oEmbedInvalid(t *testing.T) {
+	t.Setenv("ALLOW_PRIVATE_IP", "true")
+	loadConfig()
+
 	tests := []struct {
 		name     string
 		s        *Summaly
@@ -565,6 +580,9 @@ func TestSummaly_Do_oEmbedInvalid(t *testing.T) {
 }
 
 func BenchmarkSummaly_Do(b *testing.B) {
+	b.Setenv("ALLOW_PRIVATE_IP", "true")
+	loadConfig()
+
 	_, serverURL, teardown := setupServer("oembed.html", "oembed.json")
 	defer teardown()
 
