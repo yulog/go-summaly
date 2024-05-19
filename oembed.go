@@ -53,6 +53,7 @@ var safeList = []string{
 var ignoredList = []string{
 	"gyroscope",
 	"accelerometer",
+	"", // 空の値も除去する
 }
 
 type OembedJSON struct {
