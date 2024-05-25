@@ -121,25 +121,23 @@ func (reqs *Request) limitEncode(resp *http.Response) io.Reader {
 	// https://golang.hateblo.jp/entry/2019/10/08/215202
 	// Apache-2.0 Copyright 2018 Adam Tauber
 	// https://github.com/gocolly/colly/blob/master/http_backend.go#L198
-	var bodyReader io.Reader = resp.Body
-	bodyReader = io.LimitReader(bodyReader, reqs.limit)
+	r := io.LimitReader(resp.Body, reqs.limit)
 
 	// Encoding
 	// https://mattn.kaoriya.net/software/lang/go/20171205164150.htm
-	br := bufio.NewReader(bodyReader)
-	var r io.Reader = br
+	br := bufio.NewReader(r)
 	if data, err := br.Peek(4096); err == nil {
 		enc, name, _ := charset.DetermineEncoding(data, resp.Header.Get("content-type"))
 		if enc != nil {
-			r = enc.NewDecoder().Reader(br)
+			return enc.NewDecoder().Reader(br)
 		} else if name != "" {
 			if enc := encoding.GetEncoding(name); enc != nil {
-				r = enc.NewDecoder().Reader(br)
+				return enc.NewDecoder().Reader(br)
 			}
 		}
 	}
 
-	return r
+	return br
 }
 
 // Do は指定の url から response を取得する
