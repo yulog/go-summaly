@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-	"regexp"
 	"strings"
 	"unicode/utf8"
 )
@@ -23,13 +21,12 @@ func Clip(s string, max int) string {
 
 // CleanupTitle は title から siteName を除去する
 func CleanupTitle(title, siteName string) string {
-	if title != "" && siteName != "" && strings.Contains(title, siteName) {
-		siteName = regexp.QuoteMeta(siteName)
-		re := regexp.MustCompile(fmt.Sprintf(`^(.+?)\s?[\-\|:・]\s?%s$`, siteName))
-		s := re.FindStringSubmatch(title)
-		if len(s) > 0 {
-			return s[1]
-		}
+	if title != "" && siteName != "" {
+		title = strings.TrimSuffix(title, siteName)
+		title = strings.TrimSpace(title)
+		title = strings.TrimRight(title, "-|:・")
+		title = strings.TrimSpace(title)
+		return title
 	}
 
 	return title
