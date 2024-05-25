@@ -20,11 +20,11 @@ func getOembed(doc *goquery.Document) (*OembedJSON, error) {
 		}
 		u = doc.Url.ResolveReference(u)
 
-		options := fetch.New()
+		options := fetch.New(getClient())
 		options.Accept = "application/json"
 		options.AllowType = []string{"application/json"}
 		options.Limit = 500 << 10 // 500KiB
-		options = options.AllowPrivateIP(config.AllowPrivateIP)
+		// options = options.AllowPrivateIP(config.AllowPrivateIP)
 
 		var o OembedJSON
 		if err = options.GetJSON(u, &o); err != nil {

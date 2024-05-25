@@ -5,10 +5,13 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/yulog/go-summaly/fetch"
 )
 
 type Query struct {
@@ -46,6 +49,21 @@ func getSummaly(c echo.Context) error {
 		return c.String(http.StatusBadRequest, "bad request "+err.Error())
 	}
 	return c.JSON(http.StatusOK, summary)
+}
+
+var (
+	client *fetch.Client
+	once   sync.Once
+)
+
+func getClient() *fetch.Client {
+	once.Do(func() {
+		client = fetch.NewClient(fetch.ClientOpts{
+			AllowPrivateIP: config.AllowPrivateIP,
+			Timeout:        60 * time.Second,
+		})
+	})
+	return client
 }
 
 func main() {

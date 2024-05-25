@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"slices"
+	"time"
 
 	"golang.org/x/net/html/charset"
 
@@ -17,9 +18,9 @@ import (
 	"golang.org/x/net/html"
 )
 
-var config = safeurl.GetConfigBuilder().Build()
+// var config *safeurl.Config
 
-var client = safeurl.Client(config)
+// var client *safeurl.WrappedClient
 
 var allowType = []string{"text/html", "application/xhtml+xml"}
 
@@ -32,29 +33,52 @@ type Options struct {
 	Accept         string
 	AcceptLanguage string
 
-	allowPrivateIP bool
+	// allowPrivateIP bool
+	client *Client
+}
+
+type Client struct {
+	SafeClient *safeurl.WrappedClient
+	TestClient *http.Client
+
+	AllowPrivateIP bool
+}
+
+type ClientOpts struct {
+	AllowPrivateIP bool
+	Timeout        time.Duration
+}
+
+// TODO: optionとかNewを整理する
+func NewClient(c ClientOpts) *Client {
+	if c.AllowPrivateIP {
+		return &Client{TestClient: http.DefaultClient, AllowPrivateIP: c.AllowPrivateIP}
+	}
+	config := safeurl.GetConfigBuilder().SetTimeout(c.Timeout).Build()
+	return &Client{SafeClient: safeurl.Client(config), AllowPrivateIP: c.AllowPrivateIP}
 }
 
 // New は Options を返す
-func New() *Options {
+func New(c *Client) *Options {
 	return &Options{
 		AllowType: allowType,
 		Limit:     limit,
 		UserAgent: "SummalyBot/0.0.1",
 		Accept:    "text/html, application/xhtml+xml",
+		client:    c,
 	}
 }
 
-func (o *Options) AllowPrivateIP(allow bool) *Options {
-	o.allowPrivateIP = allow
-	return o
-}
+// func (o *Options) AllowPrivateIP(allow bool) *Options {
+// 	o.allowPrivateIP = allow
+// 	return o
+// }
 
 func (o *Options) clientdo(req *http.Request) (*http.Response, error) {
-	if o.allowPrivateIP {
-		return http.DefaultClient.Do(req)
+	if o.client.AllowPrivateIP {
+		return o.client.TestClient.Do(req)
 	} else {
-		return client.Do(req)
+		return o.client.SafeClient.Do(req)
 	}
 }
 

@@ -20,12 +20,12 @@ type Summarizer interface {
 	summarize(*Summaly) (Summary, error)
 }
 
-// var ss = []Summarizer{new(General)}
+var ss = []Summarizer{new(General)}
 
 func (s *Summaly) Do() (Summary, error) {
-	options := fetch.New()
+	options := fetch.New(getClient())
 	options.AcceptLanguage = s.Lang
-	options = options.AllowPrivateIP(config.AllowPrivateIP)
+	// options = options.AllowPrivateIP(config.AllowPrivateIP)
 
 	node, err := options.GetHtmlNode(s.URL)
 	if err != nil {
@@ -34,7 +34,7 @@ func (s *Summaly) Do() (Summary, error) {
 	// fmt.Println(string(body))
 	s.Node = node
 
-	ss := []Summarizer{new(General)}
+	// ss := []Summarizer{new(General)}
 	for _, v := range ss {
 		if v.test() {
 			return v.summarize(s)
