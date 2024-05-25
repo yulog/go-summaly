@@ -23,11 +23,11 @@ type Summarizer interface {
 var ss = []Summarizer{new(General)}
 
 func (s *Summaly) Do() (Summary, error) {
-	options := fetch.New(getClient())
-	options.AcceptLanguage = s.Lang
-	// options = options.AllowPrivateIP(config.AllowPrivateIP)
+	req := getClient().NewRequest(s.URL,
+		fetch.WithAcceptLanguage(s.Lang),
+	)
 
-	node, err := options.GetHtmlNode(s.URL)
+	node, err := req.GetHtmlNode()
 	if err != nil {
 		return Summary{}, err
 	}

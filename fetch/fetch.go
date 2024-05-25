@@ -18,30 +18,29 @@ import (
 	"golang.org/x/net/html"
 )
 
-// var config *safeurl.Config
+var defaultAllowType = []string{"text/html", "application/xhtml+xml"}
 
-// var client *safeurl.WrappedClient
+const defaultLimit = 10 << 20 // 10MiB
 
-var allowType = []string{"text/html", "application/xhtml+xml"}
+type Request struct {
+	url *url.URL
 
-const limit = 10 << 20 // 10MiB
+	allowType      []string
+	limit          int64
+	userAgent      string
+	accept         string
+	acceptLanguage string
 
-type Options struct {
-	AllowType      []string
-	Limit          int64
-	UserAgent      string
-	Accept         string
-	AcceptLanguage string
-
-	// allowPrivateIP bool
 	client *Client
 }
+
+type Option func(*Request)
 
 type Client struct {
 	SafeClient *safeurl.WrappedClient
 	TestClient *http.Client
 
-	AllowPrivateIP bool
+	allowPrivateIP bool
 }
 
 type ClientOpts struct {
@@ -49,46 +48,81 @@ type ClientOpts struct {
 	Timeout        time.Duration
 }
 
-// TODO: optionとかNewを整理する
+// NewClient は Client を作成する
+//
+// プライベートIPを許可する場合は http.DefaultClient を返し、
+// 許可しない場合は doyensec/safeurl の Client を返す
 func NewClient(c ClientOpts) *Client {
 	if c.AllowPrivateIP {
-		return &Client{TestClient: http.DefaultClient, AllowPrivateIP: c.AllowPrivateIP}
+		return &Client{TestClient: http.DefaultClient, allowPrivateIP: c.AllowPrivateIP}
 	}
 	config := safeurl.GetConfigBuilder().SetTimeout(c.Timeout).Build()
-	return &Client{SafeClient: safeurl.Client(config), AllowPrivateIP: c.AllowPrivateIP}
+	return &Client{SafeClient: safeurl.Client(config), allowPrivateIP: c.AllowPrivateIP}
 }
 
-// New は Options を返す
-func New(c *Client) *Options {
-	return &Options{
-		AllowType: allowType,
-		Limit:     limit,
-		UserAgent: "SummalyBot/0.0.1",
-		Accept:    "text/html, application/xhtml+xml",
-		client:    c,
+func WithAllowType(allowType []string) func(*Request) {
+	return func(r *Request) {
+		r.allowType = allowType
 	}
 }
 
-// func (o *Options) AllowPrivateIP(allow bool) *Options {
-// 	o.allowPrivateIP = allow
-// 	return o
-// }
+func WithLimit(limit int64) func(*Request) {
+	return func(r *Request) {
+		r.limit = limit
+	}
+}
 
-func (o *Options) clientdo(req *http.Request) (*http.Response, error) {
-	if o.client.AllowPrivateIP {
+func WithUserAgent(userAgent string) func(*Request) {
+	return func(r *Request) {
+		r.userAgent = userAgent
+	}
+}
+
+func WithAccept(accept string) func(*Request) {
+	return func(r *Request) {
+		r.accept = accept
+	}
+}
+
+func WithAcceptLanguage(acceptLanguage string) func(*Request) {
+	return func(r *Request) {
+		r.acceptLanguage = acceptLanguage
+	}
+}
+
+// NewRequest は *Request を返す
+func (c *Client) NewRequest(url *url.URL, options ...Option) *Request {
+	// p.110 Go言語プログラミングエッセンス
+	// Functional Options Pattern
+	req := &Request{
+		url:       url,
+		allowType: defaultAllowType,
+		limit:     defaultLimit,
+		userAgent: "SummalyBot/0.0.1",
+		accept:    "text/html, application/xhtml+xml",
+		client:    c,
+	}
+	for _, opt := range options {
+		opt(req)
+	}
+	return req
+}
+
+func (o *Request) clientdo(req *http.Request) (*http.Response, error) {
+	if o.client.allowPrivateIP {
 		return o.client.TestClient.Do(req)
 	} else {
 		return o.client.SafeClient.Do(req)
 	}
 }
 
-func (o *Options) limitEncode(resp *http.Response) io.Reader {
+func (reqs *Request) limitEncode(resp *http.Response) io.Reader {
 	// Bodyサイズ制限
 	// https://golang.hateblo.jp/entry/2019/10/08/215202
 	// Apache-2.0 Copyright 2018 Adam Tauber
 	// https://github.com/gocolly/colly/blob/master/http_backend.go#L198
 	var bodyReader io.Reader = resp.Body
-	bodyReader = io.LimitReader(bodyReader, o.Limit)
+	bodyReader = io.LimitReader(bodyReader, reqs.limit)
 
 	// Encoding
 	// https://mattn.kaoriya.net/software/lang/go/20171205164150.htm
@@ -109,18 +143,18 @@ func (o *Options) limitEncode(resp *http.Response) io.Reader {
 }
 
 // Do は指定の url から response を取得する
-func (o *Options) do(url *url.URL) (*http.Response, error) {
-	req, err := http.NewRequest(http.MethodGet, url.String(), nil)
+func (reqs *Request) do() (*http.Response, error) {
+	req, err := http.NewRequest(http.MethodGet, reqs.url.String(), nil)
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("User-Agent", o.UserAgent)
-	req.Header.Set("Accept", o.Accept)
-	if o.AcceptLanguage != "" {
-		req.Header.Set("Accept-Language", o.AcceptLanguage)
+	req.Header.Set("User-Agent", reqs.userAgent)
+	req.Header.Set("Accept", reqs.accept)
+	if reqs.acceptLanguage != "" {
+		req.Header.Set("Accept-Language", reqs.acceptLanguage)
 	}
 
-	resp, err := o.clientdo(req)
+	resp, err := reqs.clientdo(req)
 	if err != nil {
 		return nil, err
 	}
@@ -130,7 +164,7 @@ func (o *Options) do(url *url.URL) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
-	if !slices.Contains(o.AllowType, mediatype) {
+	if !slices.Contains(reqs.allowType, mediatype) {
 		return nil, fmt.Errorf("rejected by type: %s", mediatype)
 	}
 
@@ -138,13 +172,13 @@ func (o *Options) do(url *url.URL) (*http.Response, error) {
 }
 
 // Do は指定の url からBodyを取得する
-func (o *Options) Do(url *url.URL) ([]byte, error) {
-	resp, err := o.do(url)
+func (reqs *Request) Do() ([]byte, error) {
+	resp, err := reqs.do()
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	body, err := io.ReadAll(o.limitEncode(resp))
+	body, err := io.ReadAll(reqs.limitEncode(resp))
 	if err != nil {
 		return nil, err
 	}
@@ -152,14 +186,14 @@ func (o *Options) Do(url *url.URL) ([]byte, error) {
 }
 
 // GetHtmlNode は指定の url から Body を取得し、 html.Node を返す
-func (o *Options) GetHtmlNode(url *url.URL) (*html.Node, error) {
-	resp, err := o.do(url)
+func (reqs *Request) GetHtmlNode() (*html.Node, error) {
+	resp, err := reqs.do()
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	node, err := html.Parse(o.limitEncode(resp))
+	node, err := html.Parse(reqs.limitEncode(resp))
 	if err != nil {
 		return nil, err
 	}
@@ -167,12 +201,12 @@ func (o *Options) GetHtmlNode(url *url.URL) (*html.Node, error) {
 }
 
 // GetJSON は指定の url から Body を取得し、 out に decode する
-func (o *Options) GetJSON(url *url.URL, out any) error {
-	resp, err := o.do(url)
+func (reqs *Request) GetJSON(out any) error {
+	resp, err := reqs.do()
 	if err != nil {
 		return err
 	}
 	defer resp.Body.Close()
 
-	return json.NewDecoder(o.limitEncode(resp)).Decode(out)
+	return json.NewDecoder(reqs.limitEncode(resp)).Decode(out)
 }
