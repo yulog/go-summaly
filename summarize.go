@@ -25,16 +25,13 @@ type Summarizer interface {
 var ss = []Summarizer{new(General)}
 
 func (s *Summaly) Do() (Summary, error) {
-	req := s.Client.NewRequest(s.URL,
+	var err error
+	s.Node, err = s.Client.NewRequest(s.URL,
 		fetch.WithAcceptLanguage(s.Lang),
-	)
-
-	node, err := req.GetHtmlNode()
+	).GetHtmlNode()
 	if err != nil {
 		return Summary{}, err
 	}
-	// fmt.Println(string(body))
-	s.Node = node
 
 	// ss := []Summarizer{new(General)}
 	for _, v := range ss {

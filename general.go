@@ -32,14 +32,7 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 
 	m := meta(doc)
 
-	title := ""
-	if ogp.Title != "" {
-		title = ogp.Title
-	} else if m.TwitterTitle != "" {
-		title = m.TwitterTitle
-	} else if v := doc.Find("title").Text(); v != "" {
-		title = v
-	}
+	title := cmp.Or(ogp.Title, m.TwitterTitle, doc.Find("title").Text())
 
 	title = Clip(html.UnescapeString(title), 100)
 
