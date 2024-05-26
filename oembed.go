@@ -12,7 +12,9 @@ import (
 	"github.com/yulog/go-summaly/fetch"
 )
 
-func getOembed(doc *goquery.Document) (*OembedJSON, error) {
+var oembedAllowType = []string{"application/json"}
+
+func getOembed(client *fetch.Client, doc *goquery.Document) (*OembedJSON, error) {
 	if v, ok := doc.Find("link[type='application/json+oembed']").Attr("href"); ok {
 		u, err := url.Parse(v)
 		if err != nil {
@@ -20,9 +22,9 @@ func getOembed(doc *goquery.Document) (*OembedJSON, error) {
 		}
 		u = doc.Url.ResolveReference(u)
 
-		options := getClient().NewRequest(u,
+		options := client.NewRequest(u,
 			fetch.WithAccept("application/json"),
-			fetch.WithAllowType([]string{"application/json"}),
+			fetch.WithAllowType(oembedAllowType),
 			fetch.WithLimit(500<<10), // 500KiB
 		)
 
@@ -64,8 +66,8 @@ type OembedJSON struct {
 	Height  any
 }
 
-func GetOembedPlayer(doc *goquery.Document) (OembedInfo, error) {
-	o, err := getOembed(doc)
+func GetOembedPlayer(client *fetch.Client, doc *goquery.Document) (OembedInfo, error) {
+	o, err := getOembed(client, doc)
 	if err != nil {
 		return OembedInfo{OK: false}, err
 	}

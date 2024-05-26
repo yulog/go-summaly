@@ -13,6 +13,8 @@ type Summaly struct {
 	Lang string
 	Body []byte
 	Node *html.Node
+
+	Client *fetch.Client
 }
 
 type Summarizer interface {
@@ -23,7 +25,7 @@ type Summarizer interface {
 var ss = []Summarizer{new(General)}
 
 func (s *Summaly) Do() (Summary, error) {
-	req := getClient().NewRequest(s.URL,
+	req := s.Client.NewRequest(s.URL,
 		fetch.WithAcceptLanguage(s.Lang),
 	)
 

@@ -14,6 +14,11 @@ import (
 	"github.com/yulog/go-summaly/fetch"
 )
 
+type Server struct {
+	client *fetch.Client
+	once   sync.Once
+}
+
 type Query struct {
 	URL  string `query:"url" json:"url" validate:"required,http_url"`
 	Lang string `query:"lang" json:"lang" validate:"omitempty,bcp47_language_tag"`
@@ -27,7 +32,21 @@ func (v *Validator) Validate(i interface{}) error {
 	return v.validator.Struct(i)
 }
 
-func getSummaly(c echo.Context) error {
+func NewServer() *Server {
+	return &Server{}
+}
+
+func (srv *Server) getClient() *fetch.Client {
+	srv.once.Do(func() {
+		srv.client = fetch.NewClient(fetch.ClientOpts{
+			AllowPrivateIP: config.AllowPrivateIP,
+			Timeout:        60 * time.Second,
+		})
+	})
+	return srv.client
+}
+
+func (srv *Server) getSummaly(c echo.Context) error {
 	q := new(Query)
 	if err := c.Bind(q); err != nil {
 		return c.String(http.StatusBadRequest, "bad request")
@@ -43,7 +62,7 @@ func getSummaly(c echo.Context) error {
 		return c.String(http.StatusBadRequest, "bad request")
 	}
 
-	s := Summaly{URL: u, Lang: q.Lang}
+	s := Summaly{URL: u, Lang: q.Lang, Client: srv.getClient()}
 	summary, err := s.Do()
 	if err != nil {
 		return c.String(http.StatusBadRequest, "bad request "+err.Error())
@@ -51,23 +70,9 @@ func getSummaly(c echo.Context) error {
 	return c.JSON(http.StatusOK, summary)
 }
 
-var (
-	client *fetch.Client
-	once   sync.Once
-)
-
-func getClient() *fetch.Client {
-	once.Do(func() {
-		client = fetch.NewClient(fetch.ClientOpts{
-			AllowPrivateIP: config.AllowPrivateIP,
-			Timeout:        60 * time.Second,
-		})
-	})
-	return client
-}
-
 func main() {
 	loadConfig()
+	srv := NewServer()
 
 	e := echo.New()
 	e.JSONSerializer = &JSONSerializer{}
@@ -75,6 +80,6 @@ func main() {
 	// e.Use(middleware.Gzip())
 	e.Use(middleware.Recover())
 	e.Validator = &Validator{validator: validator.New()}
-	e.GET("/", getSummaly)
+	e.GET("/", srv.getSummaly)
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", config.Port)))
 }

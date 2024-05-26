@@ -48,6 +48,7 @@ func setupServer(template, file string) (mux *http.ServeMux, serverURL string, t
 func TestSummaly_Do_NoFavicon(t *testing.T) {
 	t.Setenv("ALLOW_PRIVATE_IP", "true")
 	loadConfig()
+	client := NewServer().getClient()
 
 	tests := []struct {
 		name     string
@@ -61,7 +62,8 @@ func TestSummaly_Do_NoFavicon(t *testing.T) {
 		{
 			name: "title cleanup",
 			s: &Summaly{
-				URL: nil,
+				URL:    nil,
+				Client: client,
 			},
 			want: Summary{
 				Title:  "Strawberry Pasta",
@@ -98,6 +100,7 @@ func TestSummaly_Do_NoFavicon(t *testing.T) {
 func TestSummaly_Do_TitleCleanup(t *testing.T) {
 	t.Setenv("ALLOW_PRIVATE_IP", "true")
 	loadConfig()
+	client := NewServer().getClient()
 
 	tests := []struct {
 		name     string
@@ -111,7 +114,8 @@ func TestSummaly_Do_TitleCleanup(t *testing.T) {
 		{
 			name: "title cleanup",
 			s: &Summaly{
-				URL: nil,
+				URL:    nil,
+				Client: client,
 			},
 			want: Summary{
 				Title:    "Strawberry Pasta",
@@ -144,9 +148,58 @@ func TestSummaly_Do_TitleCleanup(t *testing.T) {
 	}
 }
 
+func TestSummaly_Do_PrivateIPBlocking(t *testing.T) {
+	t.Setenv("ALLOW_PRIVATE_IP", "false")
+	loadConfig()
+	client := NewServer().getClient()
+
+	tests := []struct {
+		name     string
+		s        *Summaly
+		want     Summary
+		wantErr  bool
+		file     string
+		template string
+	}{
+		// TODO: Add test cases.
+		{
+			name: "private ip blocking",
+			s: &Summaly{
+				URL:    nil,
+				Client: client,
+			},
+			want:     Summary{},
+			wantErr:  true,
+			file:     "oembed.json",
+			template: "og-title.html",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, serverURL, teardown := setupServer(tt.template, tt.file)
+			defer teardown()
+
+			u, _ := url.Parse(serverURL)
+			// テスト用サーバのURLをセット。この方法は良くないかも？
+			tt.s.URL = u
+			// tt.want.URL = u.String()
+
+			got, err := tt.s.Do()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Summaly.Do() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("(-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
 func TestSummaly_Do_OGP(t *testing.T) {
 	t.Setenv("ALLOW_PRIVATE_IP", "true")
 	loadConfig()
+	client := NewServer().getClient()
 
 	tests := []struct {
 		name     string
@@ -160,7 +213,8 @@ func TestSummaly_Do_OGP(t *testing.T) {
 		{
 			name: "title",
 			s: &Summaly{
-				URL: nil,
+				URL:    nil,
+				Client: client,
 			},
 			want: Summary{
 				Title:    "Strawberry Pasta",
@@ -173,7 +227,8 @@ func TestSummaly_Do_OGP(t *testing.T) {
 		{
 			name: "description",
 			s: &Summaly{
-				URL: nil,
+				URL:    nil,
+				Client: client,
 			},
 			want: Summary{
 				Title:       "YEE HAW",
@@ -187,7 +242,8 @@ func TestSummaly_Do_OGP(t *testing.T) {
 		{
 			name: "site_name",
 			s: &Summaly{
-				URL: nil,
+				URL:    nil,
+				Client: client,
 			},
 			want: Summary{
 				Title:    "YEE HAW",
@@ -200,7 +256,8 @@ func TestSummaly_Do_OGP(t *testing.T) {
 		{
 			name: "thumbnail",
 			s: &Summaly{
-				URL: nil,
+				URL:    nil,
+				Client: client,
 			},
 			want: Summary{
 				Title:     "YEE HAW",
@@ -241,6 +298,7 @@ func TestSummaly_Do_OGP(t *testing.T) {
 func TestSummaly_Do_TwitterCard(t *testing.T) {
 	t.Setenv("ALLOW_PRIVATE_IP", "true")
 	loadConfig()
+	client := NewServer().getClient()
 
 	tests := []struct {
 		name     string
@@ -254,7 +312,8 @@ func TestSummaly_Do_TwitterCard(t *testing.T) {
 		{
 			name: "title",
 			s: &Summaly{
-				URL: nil,
+				URL:    nil,
+				Client: client,
 			},
 			want: Summary{
 				Title:  "Strawberry Pasta",
@@ -266,7 +325,8 @@ func TestSummaly_Do_TwitterCard(t *testing.T) {
 		{
 			name: "description",
 			s: &Summaly{
-				URL: nil,
+				URL:    nil,
+				Client: client,
 			},
 			want: Summary{
 				Title:       "YEE HAW",
@@ -279,7 +339,8 @@ func TestSummaly_Do_TwitterCard(t *testing.T) {
 		{
 			name: "thumbnail",
 			s: &Summaly{
-				URL: nil,
+				URL:    nil,
+				Client: client,
 			},
 			want: Summary{
 				Title:     "YEE HAW",
@@ -293,7 +354,8 @@ func TestSummaly_Do_TwitterCard(t *testing.T) {
 		{
 			name: "Player detection - PeerTube:video => video",
 			s: &Summaly{
-				URL: nil,
+				URL:    nil,
+				Client: client,
 			},
 			want: Summary{
 				Title:       "Title",
@@ -313,7 +375,8 @@ func TestSummaly_Do_TwitterCard(t *testing.T) {
 		{
 			name: "Player detection - Pleroma:video => video",
 			s: &Summaly{
-				URL: nil,
+				URL:    nil,
+				Client: client,
 			},
 			want: Summary{
 				Title:       "Title",
@@ -332,7 +395,8 @@ func TestSummaly_Do_TwitterCard(t *testing.T) {
 		{
 			name: "Player detection - Pleroma:image => image",
 			s: &Summaly{
-				URL: nil,
+				URL:    nil,
+				Client: client,
 			},
 			want: Summary{
 				Title:       "Title",
@@ -372,6 +436,7 @@ func TestSummaly_Do_TwitterCard(t *testing.T) {
 func TestSummaly_Do_oEmbed(t *testing.T) {
 	t.Setenv("ALLOW_PRIVATE_IP", "true")
 	loadConfig()
+	client := NewServer().getClient()
 
 	tests := []struct {
 		name     string
@@ -385,7 +450,8 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 		{
 			name: "basic properties",
 			s: &Summaly{
-				URL: nil,
+				URL:    nil,
+				Client: client,
 			},
 			want: Summary{
 				Player: Player{
@@ -401,7 +467,8 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 		{
 			name: "type: video",
 			s: &Summaly{
-				URL: nil,
+				URL:    nil,
+				Client: client,
 			},
 			want: Summary{
 				Player: Player{
@@ -417,7 +484,8 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 		{
 			name: "max height",
 			s: &Summaly{
-				URL: nil,
+				URL:    nil,
+				Client: client,
 			},
 			want: Summary{
 				Player: Player{
@@ -433,7 +501,8 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 		{
 			name: "children are ignored",
 			s: &Summaly{
-				URL: nil,
+				URL:    nil,
+				Client: client,
 			},
 			want: Summary{
 				Player: Player{
@@ -449,7 +518,8 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 		{
 			name: "allows fullscreen",
 			s: &Summaly{
-				URL: nil,
+				URL:    nil,
+				Client: client,
 			},
 			want: Summary{
 				Player: Player{
@@ -465,7 +535,8 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 		{
 			name: "allows legacy allowfullscreen",
 			s: &Summaly{
-				URL: nil,
+				URL:    nil,
+				Client: client,
 			},
 			want: Summary{
 				Player: Player{
@@ -481,7 +552,8 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 		{
 			name: "allows safelisted permissions",
 			s: &Summaly{
-				URL: nil,
+				URL:    nil,
+				Client: client,
 			},
 			want: Summary{
 				Player: Player{
@@ -504,7 +576,8 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 		{
 			name: "ignores rare permissions",
 			s: &Summaly{
-				URL: nil,
+				URL:    nil,
+				Client: client,
 			},
 			want: Summary{
 				Player: Player{
@@ -520,7 +593,8 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 		{
 			name: "oEmbed with relative path",
 			s: &Summaly{
-				URL: nil,
+				URL:    nil,
+				Client: client,
 			},
 			want: Summary{
 				Player: Player{
@@ -536,7 +610,8 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 		{
 			name: "oEmbed with nonexistent path",
 			s: &Summaly{
-				URL: nil,
+				URL:    nil,
+				Client: client,
 			},
 			want: Summary{
 				Description: "nonexistent",
@@ -548,7 +623,8 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 		{
 			name: "oEmbed with wrong path",
 			s: &Summaly{
-				URL: nil,
+				URL:    nil,
+				Client: client,
 			},
 			want: Summary{
 				Description: "wrong url",
@@ -560,7 +636,8 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 		{
 			name: "oEmbed with OpenGraph",
 			s: &Summaly{
-				URL: nil,
+				URL:    nil,
+				Client: client,
 			},
 			want: Summary{
 				Description: "blobcats rule the world",
@@ -577,7 +654,8 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 		{
 			name: "Invalid oEmbed with valid OpenGraph",
 			s: &Summaly{
-				URL: nil,
+				URL:    nil,
+				Client: client,
 			},
 			want: Summary{
 				Description: "blobcats rule the world",
@@ -589,7 +667,8 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 		{
 			name: "oEmbed with og:video",
 			s: &Summaly{
-				URL: nil,
+				URL:    nil,
+				Client: client,
 			},
 			want: Summary{
 				Player: Player{
@@ -605,7 +684,8 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 		{
 			name: "width: 100%",
 			s: &Summaly{
-				URL: nil,
+				URL:    nil,
+				Client: client,
 			},
 			want: Summary{
 				Player: Player{
@@ -649,6 +729,7 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 func TestSummaly_Do_oEmbedInvalid(t *testing.T) {
 	t.Setenv("ALLOW_PRIVATE_IP", "true")
 	loadConfig()
+	client := NewServer().getClient()
 
 	tests := []struct {
 		name     string
@@ -662,7 +743,8 @@ func TestSummaly_Do_oEmbedInvalid(t *testing.T) {
 		{
 			name: "oEmbed invalidity test:",
 			s: &Summaly{
-				URL: nil,
+				URL:    nil,
+				Client: client,
 			},
 			want: Summary{
 				// Icon: "/apple-touch-icon.png",
@@ -713,13 +795,15 @@ func TestSummaly_Do_oEmbedInvalid(t *testing.T) {
 func BenchmarkSummaly_Do(b *testing.B) {
 	b.Setenv("ALLOW_PRIVATE_IP", "true")
 	loadConfig()
+	client := NewServer().getClient()
 
 	_, serverURL, teardown := setupServer("oembed.html", "oembed.json")
 	defer teardown()
 
 	u, _ := url.Parse(serverURL)
 	s := Summaly{
-		URL: u,
+		URL:    u,
+		Client: client,
 	}
 	for i := 0; i < b.N; i++ {
 		s.Do()

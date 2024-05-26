@@ -20,7 +20,7 @@ import (
 
 var defaultAllowType = []string{"text/html", "application/xhtml+xml"}
 
-const defaultLimit = 10 << 20 // 10MiB
+// const defaultLimit = 10 << 20 // 10MiB
 
 type Request struct {
 	url *url.URL
@@ -97,7 +97,7 @@ func (c *Client) NewRequest(url *url.URL, options ...Option) *Request {
 	req := &Request{
 		url:       url,
 		allowType: defaultAllowType,
-		limit:     defaultLimit,
+		limit:     10 << 20, // 10MiB
 		userAgent: "SummalyBot/0.0.1",
 		accept:    "text/html, application/xhtml+xml",
 		client:    c,
