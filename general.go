@@ -21,7 +21,7 @@ func (*General) test() bool {
 }
 
 func (*General) summarize(s *Summaly) (Summary, error) {
-	ogp := &opengraph.OpenGraph{}
+	ogp := &opengraph.OpenGraph{Intent: opengraph.Intent{Strict: true}}
 	err := ogp.Walk(s.Node)
 	if err != nil {
 		return Summary{}, err
