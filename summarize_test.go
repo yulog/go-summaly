@@ -238,6 +238,137 @@ func TestSummaly_Do_OGP(t *testing.T) {
 	}
 }
 
+func TestSummaly_Do_TwitterCard(t *testing.T) {
+	t.Setenv("ALLOW_PRIVATE_IP", "true")
+	loadConfig()
+
+	tests := []struct {
+		name     string
+		s        *Summaly
+		want     Summary
+		wantErr  bool
+		file     string
+		template string
+	}{
+		// TODO: Add test cases.
+		{
+			name: "title",
+			s: &Summaly{
+				URL: nil,
+			},
+			want: Summary{
+				Title:  "Strawberry Pasta",
+				Player: emptyPlayer,
+			},
+			file:     "oembed.json",
+			template: "twitter-title.html",
+		},
+		{
+			name: "description",
+			s: &Summaly{
+				URL: nil,
+			},
+			want: Summary{
+				Title:       "YEE HAW",
+				Description: "Strawberry Pasta",
+				Player:      emptyPlayer,
+			},
+			file:     "oembed.json",
+			template: "twitter-description.html",
+		},
+		{
+			name: "thumbnail",
+			s: &Summaly{
+				URL: nil,
+			},
+			want: Summary{
+				Title:     "YEE HAW",
+				Icon:      "https://himasaku.net/himasaku.png",
+				Thumbnail: "https://himasaku.net/himasaku.png",
+				Player:    emptyPlayer,
+			},
+			file:     "oembed.json",
+			template: "twitter-image.html",
+		},
+		{
+			name: "Player detection - PeerTube:video => video",
+			s: &Summaly{
+				URL: nil,
+			},
+			want: Summary{
+				Title:       "Title",
+				Description: "Desc",
+				Thumbnail:   "https://example.com/imageurl",
+				Player: Player{
+					URL:    "https://example.com/embedurl",
+					Width:  convptr(int(640)),
+					Height: convptr(int(480)),
+					Allow:  []string{"autoplay", "encrypted-media", "fullscreen"},
+				},
+				Sitename: "Site",
+			},
+			file:     "oembed.json",
+			template: "player-peertube-video.html",
+		},
+		{
+			name: "Player detection - Pleroma:video => video",
+			s: &Summaly{
+				URL: nil,
+			},
+			want: Summary{
+				Title:       "Title",
+				Description: "Desc",
+				Thumbnail:   "https://example.com/imageurl",
+				Player: Player{
+					URL:    "https://example.com/embedurl",
+					Width:  convptr(int(480)),
+					Height: convptr(int(480)),
+					Allow:  []string{"autoplay", "encrypted-media", "fullscreen"},
+				},
+			},
+			file:     "oembed.json",
+			template: "player-pleroma-video.html",
+		},
+		{
+			name: "Player detection - Pleroma:image => image",
+			s: &Summaly{
+				URL: nil,
+			},
+			want: Summary{
+				Title:       "Title",
+				Description: "Desc",
+				Thumbnail:   "https://example.com/imageurl",
+				Player:      emptyPlayer,
+			},
+			file:     "oembed.json",
+			template: "player-pleroma-image.html",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, serverURL, teardown := setupServer(tt.template, tt.file)
+			defer teardown()
+
+			u, _ := url.Parse(serverURL)
+			// テスト用サーバのURLをセット。この方法は良くないかも？
+			tt.s.URL = u
+			if tt.want.Sitename == "" {
+				tt.want.Sitename = u.Host
+			}
+			tt.want.URL = u.String()
+
+			got, err := tt.s.Do()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Summaly.Do() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("(-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
 func TestSummaly_Do_oEmbed(t *testing.T) {
 	t.Setenv("ALLOW_PRIVATE_IP", "true")
 	loadConfig()
