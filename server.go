@@ -40,7 +40,7 @@ func (srv *Server) getClient() *fetch.Client {
 	srv.once.Do(func() {
 		srv.client = fetch.NewClient(fetch.ClientOpts{
 			AllowPrivateIP: config.AllowPrivateIP,
-			Timeout:        60 * time.Second,
+			Timeout:        time.Duration(config.Timeout) * time.Second,
 		})
 	})
 	return srv.client

@@ -3,5 +3,6 @@
 ## Config
 
  - `PORT` (default: `1323`) - Port to listen for incoming connections
+ - `TIMEOUT` (default: `60`) - Timeout for http requests
  - `ALLOW_PRIVATE_IP` (default: `false`) - AllowPrivateIP to connect private ip for test
 
