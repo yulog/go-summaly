@@ -171,10 +171,6 @@ func (c *Client) NewRequest(url *url.URL, options ...Option) *Request {
 	return req
 }
 
-func (o *Request) clientdo(req *http.Request) (*http.Response, error) {
-	return o.client.HTTPClient.Do(req)
-}
-
 func (reqs *Request) limitEncode(resp *http.Response) io.Reader {
 	// Bodyサイズ制限
 	// https://golang.hateblo.jp/entry/2019/10/08/215202
@@ -211,7 +207,7 @@ func (reqs *Request) do() (*http.Response, error) {
 		req.Header.Set("Accept-Language", reqs.acceptLanguage)
 	}
 
-	resp, err := reqs.clientdo(req)
+	resp, err := reqs.client.HTTPClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
