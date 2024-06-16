@@ -6,7 +6,6 @@ toolchain go1.22.0
 
 require (
 	github.com/PuerkitoBio/goquery v1.9.2
-	github.com/doyensec/safeurl v0.2.1
 	github.com/go-playground/validator/v10 v10.22.0
 	github.com/labstack/echo/v4 v4.12.0
 )
@@ -21,6 +20,7 @@ require (
 )
 
 require (
+	code.dny.dev/ssrf v0.2.0
 	github.com/caarlos0/env/v11 v11.0.1
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
