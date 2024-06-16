@@ -5,14 +5,16 @@ import (
 	"fmt"
 	"io"
 	"mime"
+	"net"
 	"net/http"
+	"net/netip"
 	"net/url"
 	"slices"
 	"time"
 
 	"golang.org/x/net/html/charset"
 
-	"github.com/doyensec/safeurl"
+	"code.dny.dev/ssrf"
 	"github.com/goccy/go-json"
 	"github.com/mattn/go-encoding"
 	"golang.org/x/net/html"
@@ -37,10 +39,7 @@ type Request struct {
 type Option func(*Request)
 
 type Client struct {
-	SafeClient *safeurl.WrappedClient
-	TestClient *http.Client
-
-	allowPrivateIP bool
+	HTTPClient *http.Client
 }
 
 type ClientOpts struct {
@@ -51,13 +50,77 @@ type ClientOpts struct {
 // NewClient は Client を作成する
 //
 // プライベートIPを許可する場合は http.DefaultClient を返し、
-// 許可しない場合は doyensec/safeurl の Client を返す
+// 許可しない場合は独自の Client を返す
 func NewClient(c ClientOpts) *Client {
 	if c.AllowPrivateIP {
-		return &Client{TestClient: http.DefaultClient, allowPrivateIP: c.AllowPrivateIP}
+		return &Client{HTTPClient: http.DefaultClient}
 	}
-	config := safeurl.GetConfigBuilder().SetTimeout(c.Timeout).Build()
-	return &Client{SafeClient: safeurl.Client(config), allowPrivateIP: c.AllowPrivateIP}
+	// https://budougumi0617.github.io/2021/09/13/how_to_copy_default_transport/
+	t, ok := http.DefaultTransport.(*http.Transport)
+	if !ok {
+		return nil
+	}
+	t = t.Clone()
+	t.DialContext = (&net.Dialer{
+		// DefaultTransport
+		Timeout:   30 * time.Second,
+		KeepAlive: 30 * time.Second,
+		// Custom
+		// iana-ipv4/6-special-registry に記載のあるものを一律拒否
+		// TODO: 不要なものがあるかも
+		// Default:
+		// https://github.com/daenney/ssrf/blob/main/ssrf_gen.go
+		Control: ssrf.New(
+			ssrf.WithDeniedV4Prefixes(
+				// https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry.xhtml
+				[]netip.Prefix{
+					netip.MustParsePrefix("0.0.0.0/32"),         // "This host on this network" (RFC 1122, Section 3.2.1.3)
+					netip.MustParsePrefix("192.0.0.0/29"),       // IPv4 Service Continuity Prefix (RFC 7335)
+					netip.MustParsePrefix("192.0.0.8/32"),       // IPv4 dummy address (RFC 7600)
+					netip.MustParsePrefix("192.0.0.9/32"),       // Port Control Protocol Anycast (RFC 7723)
+					netip.MustParsePrefix("192.0.0.10/32"),      // Traversal Using Relays around NAT Anycast (RFC 8155)
+					netip.MustParsePrefix("192.0.0.170/32"),     // NAT64/DNS64 Discovery (RFC 8880, RFC 7050, Section 2.2)
+					netip.MustParsePrefix("192.0.0.171/32"),     // NAT64/DNS64 Discovery (RFC 8880, RFC 7050, Section 2.2)
+					netip.MustParsePrefix("192.0.2.0/24"),       // Documentation (TEST-NET-1) (RFC 5737)
+					netip.MustParsePrefix("255.255.255.255/32"), // Limited Broadcast (RFC 8190, RFC 919, Section 7)
+				}...,
+			),
+			ssrf.WithDeniedV6Prefixes(
+				//
+				[]netip.Prefix{
+					// https://www.iana.org/assignments/iana-ipv6-special-registry/iana-ipv6-special-registry.xhtml
+					netip.MustParsePrefix("::1/128"),         // Loopback Address (RFC 4291)
+					netip.MustParsePrefix("::/128"),          // Unspecified Address (RFC 4291)
+					netip.MustParsePrefix("::ffff:0:0/96"),   // IPv4-mapped Address (RFC 4291)
+					ssrf.IPv6NAT64Prefix,                     // IPv4-IPv6 Translat. (RFC 6052)
+					netip.MustParsePrefix("64:ff9b:1::/48"),  // IPv4-IPv6 Translat. (RFC 8215)
+					netip.MustParsePrefix("100::/64"),        // Discard-Only Address Block (RFC 6666)
+					netip.MustParsePrefix("2001::/32"),       // TEREDO (RFC4380, RFC8190)
+					netip.MustParsePrefix("2001:1::1/128"),   // Port Control Protocol Anycast (RFC 7723)
+					netip.MustParsePrefix("2001:1::2/128"),   // Traversal Using Relays around NAT Anycast (RFC 8155)
+					netip.MustParsePrefix("2001:1::3/128"),   // DNS-SD Service Registration Protocol Anycast Address (RFC-ietf-dnssd-srp-25)
+					netip.MustParsePrefix("2001:2::/48"),     // Benchmarking (RFC 5180, RFC Errata 1752)
+					netip.MustParsePrefix("2001:3::/32"),     // AMT (RFC 7450)
+					netip.MustParsePrefix("2001:4:112::/48"), // AS112-v6 (RFC 7535)
+					netip.MustParsePrefix("2001:10::/28"),    // Deprecated (previously ORCHID) (RFC 4843)
+					netip.MustParsePrefix("2001:20::/28"),    // ORCHIDv2 (RFC 7343)
+					netip.MustParsePrefix("2001:30::/28"),    // Drone Remote ID Protocol Entity Tags (DETs) Prefix (RFC 9374)
+					netip.MustParsePrefix("5f00::/16"),       // Segment Routing (SRv6) SIDs (RFC-ietf-6man-sids-06)
+					netip.MustParsePrefix("fc00::/7"),        // Unique-Local (RFC 4193, RFC 8190)
+					netip.MustParsePrefix("fe80::/10"),       // Link-Local Unicast (RFC 4291)
+					// https://www.rfc-editor.org/rfc/rfc4291.html
+					netip.MustParsePrefix("ff00::/8"), // Multicast
+				}...,
+			),
+		).Safe,
+	}).DialContext
+
+	// TODO: MaxIdleConnsPerHost とか設定必要？
+	return &Client{
+		HTTPClient: &http.Client{
+			Timeout:   c.Timeout,
+			Transport: t,
+		}}
 }
 
 func WithAllowType(allowType []string) func(*Request) {
@@ -109,11 +172,7 @@ func (c *Client) NewRequest(url *url.URL, options ...Option) *Request {
 }
 
 func (o *Request) clientdo(req *http.Request) (*http.Response, error) {
-	if o.client.allowPrivateIP {
-		return o.client.TestClient.Do(req)
-	} else {
-		return o.client.SafeClient.Do(req)
-	}
+	return o.client.HTTPClient.Do(req)
 }
 
 func (reqs *Request) limitEncode(resp *http.Response) io.Reader {

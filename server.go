@@ -60,6 +60,9 @@ func (srv *Server) getSummaly(c echo.Context) error {
 	if !strings.Contains(u.Hostname(), ".") {
 		return c.String(http.StatusBadRequest, "bad request")
 	}
+	if pass, _ := u.User.Password(); u.User.Username() != "" || pass != "" {
+		return c.String(http.StatusBadRequest, "bad request")
+	}
 
 	s := Summaly{URL: u, Lang: q.Lang, Client: srv.getClient()}
 	summary, err := s.Do()
