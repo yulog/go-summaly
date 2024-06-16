@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/caarlos0/env/v11"
 )
@@ -11,7 +12,7 @@ type Config struct {
 	// Port to listen for incoming connections
 	Port int `env:"PORT" envDefault:"1323"`
 	// Timeout for http requests
-	Timeout int `env:"TIMEOUT" envDefault:"60"`
+	Timeout time.Duration `env:"TIMEOUT" envDefault:"60s"`
 	// AllowPrivateIP to connect private ip for test
 	AllowPrivateIP bool `env:"ALLOW_PRIVATE_IP" envDefault:"false"`
 }

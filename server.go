@@ -6,7 +6,6 @@ import (
 	"net/url"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
@@ -40,7 +39,7 @@ func (srv *Server) getClient() *fetch.Client {
 	srv.once.Do(func() {
 		srv.client = fetch.NewClient(fetch.ClientOpts{
 			AllowPrivateIP: config.AllowPrivateIP,
-			Timeout:        time.Duration(config.Timeout) * time.Second,
+			Timeout:        config.Timeout,
 		})
 	})
 	return srv.client
