@@ -22,6 +22,26 @@ type Summarizer interface {
 	summarize(*Summaly) (Summary, error)
 }
 
+func New(u *url.URL, c *fetch.Client, options ...Option) *Summaly {
+	s := &Summaly{
+		URL:    u,
+		Client: c,
+	}
+	for _, opt := range options {
+		opt(s)
+	}
+	return s
+}
+
+type Option func(*Summaly)
+
+func WithLang(lang string) func(*Summaly) {
+	return func(s *Summaly) {
+		s.Lang = lang
+	}
+}
+
+// TODO: これ問題ないの？
 var ss = []Summarizer{new(General)}
 
 func (s *Summaly) Do() (Summary, error) {
