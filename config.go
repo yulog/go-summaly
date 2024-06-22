@@ -11,7 +11,7 @@ import (
 type Config struct {
 	// Port to listen for incoming connections
 	Port int `env:"PORT" envDefault:"1323"`
-	// Timeout for http requests
+	// Timeout for outgoing http requests
 	Timeout time.Duration `env:"TIMEOUT" envDefault:"60s"`
 	// AllowPrivateIP to connect private ip for test
 	AllowPrivateIP bool `env:"ALLOW_PRIVATE_IP" envDefault:"false"`
