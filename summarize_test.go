@@ -21,13 +21,9 @@ var nilany any = nil
 
 var emptyPlayer = Player{
 	URL:    "",
-	Width:  &nilany,
-	Height: &nilany,
-	Allow: []string{
-		"autoplay",
-		"encrypted-media",
-		"fullscreen",
-	},
+	Width:  nil,
+	Height: nil,
+	Allow:  nil,
 }
 
 var tmp = template.Must(template.ParseGlob("testdata/htmls/*"))
@@ -68,7 +64,7 @@ func TestSummaly_Do_NoFavicon(t *testing.T) {
 			want: Summary{
 				Title:  "Strawberry Pasta",
 				Icon:   "",
-				Player: emptyPlayer,
+				Player: nil,
 			},
 			file:     "oembed.json",
 			template: "no-favicon.html",
@@ -119,7 +115,7 @@ func TestSummaly_Do_TitleCleanup(t *testing.T) {
 			},
 			want: Summary{
 				Title:    "Strawberry Pasta",
-				Player:   emptyPlayer,
+				Player:   nil,
 				Sitename: "Alice's Site",
 			},
 			file:     "oembed.json",
@@ -218,7 +214,7 @@ func TestSummaly_Do_OGP(t *testing.T) {
 			},
 			want: Summary{
 				Title:    "Strawberry Pasta",
-				Player:   emptyPlayer,
+				Player:   nil,
 				Sitename: "WANT_URL",
 			},
 			file:     "oembed.json",
@@ -233,7 +229,7 @@ func TestSummaly_Do_OGP(t *testing.T) {
 			want: Summary{
 				Title:       "YEE HAW",
 				Description: "Strawberry Pasta",
-				Player:      emptyPlayer,
+				Player:      nil,
 				Sitename:    "WANT_URL",
 			},
 			file:     "oembed.json",
@@ -247,7 +243,7 @@ func TestSummaly_Do_OGP(t *testing.T) {
 			},
 			want: Summary{
 				Title:    "YEE HAW",
-				Player:   emptyPlayer,
+				Player:   nil,
 				Sitename: "Strawberry Pasta",
 			},
 			file:     "oembed.json",
@@ -263,7 +259,7 @@ func TestSummaly_Do_OGP(t *testing.T) {
 				Title:     "YEE HAW",
 				Icon:      "https://himasaku.net/himasaku.png",
 				Thumbnail: "https://himasaku.net/himasaku.png",
-				Player:    emptyPlayer,
+				Player:    nil,
 				Sitename:  "WANT_URL",
 			},
 			file:     "oembed.json",
@@ -317,7 +313,7 @@ func TestSummaly_Do_TwitterCard(t *testing.T) {
 			},
 			want: Summary{
 				Title:  "Strawberry Pasta",
-				Player: emptyPlayer,
+				Player: nil,
 			},
 			file:     "oembed.json",
 			template: "twitter-title.html",
@@ -331,7 +327,7 @@ func TestSummaly_Do_TwitterCard(t *testing.T) {
 			want: Summary{
 				Title:       "YEE HAW",
 				Description: "Strawberry Pasta",
-				Player:      emptyPlayer,
+				Player:      nil,
 			},
 			file:     "oembed.json",
 			template: "twitter-description.html",
@@ -346,7 +342,7 @@ func TestSummaly_Do_TwitterCard(t *testing.T) {
 				Title:     "YEE HAW",
 				Icon:      "https://himasaku.net/himasaku.png",
 				Thumbnail: "https://himasaku.net/himasaku.png",
-				Player:    emptyPlayer,
+				Player:    nil,
 			},
 			file:     "oembed.json",
 			template: "twitter-image.html",
@@ -361,7 +357,7 @@ func TestSummaly_Do_TwitterCard(t *testing.T) {
 				Title:       "Title",
 				Description: "Desc",
 				Thumbnail:   "https://example.com/imageurl",
-				Player: Player{
+				Player: &Player{
 					URL:    "https://example.com/embedurl",
 					Width:  convptr(int(640)),
 					Height: convptr(int(480)),
@@ -382,7 +378,7 @@ func TestSummaly_Do_TwitterCard(t *testing.T) {
 				Title:       "Title",
 				Description: "Desc",
 				Thumbnail:   "https://example.com/imageurl",
-				Player: Player{
+				Player: &Player{
 					URL:    "https://example.com/embedurl",
 					Width:  convptr(int(480)),
 					Height: convptr(int(480)),
@@ -402,7 +398,7 @@ func TestSummaly_Do_TwitterCard(t *testing.T) {
 				Title:       "Title",
 				Description: "Desc",
 				Thumbnail:   "https://example.com/imageurl",
-				Player:      emptyPlayer,
+				Player:      nil,
 			},
 			file:     "oembed.json",
 			template: "player-pleroma-image.html",
@@ -454,7 +450,7 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 				Client: client,
 			},
 			want: Summary{
-				Player: Player{
+				Player: &Player{
 					URL:    "https://example.com/",
 					Width:  convptr(float64(500)),
 					Height: convptr(float64(300)),
@@ -471,7 +467,7 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 				Client: client,
 			},
 			want: Summary{
-				Player: Player{
+				Player: &Player{
 					URL:    "https://example.com/",
 					Width:  convptr(float64(500)),
 					Height: convptr(float64(300)),
@@ -488,7 +484,7 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 				Client: client,
 			},
 			want: Summary{
-				Player: Player{
+				Player: &Player{
 					URL:    "https://example.com/",
 					Width:  &nilany,
 					Height: convptr(1024),
@@ -505,7 +501,7 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 				Client: client,
 			},
 			want: Summary{
-				Player: Player{
+				Player: &Player{
 					URL:    "https://example.com/",
 					Width:  convptr(float64(500)),
 					Height: convptr(float64(300)),
@@ -522,7 +518,7 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 				Client: client,
 			},
 			want: Summary{
-				Player: Player{
+				Player: &Player{
 					URL:    "https://example.com/",
 					Width:  convptr(float64(500)),
 					Height: convptr(float64(300)),
@@ -539,7 +535,7 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 				Client: client,
 			},
 			want: Summary{
-				Player: Player{
+				Player: &Player{
 					URL:    "https://example.com/",
 					Width:  convptr(float64(500)),
 					Height: convptr(float64(300)),
@@ -556,7 +552,7 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 				Client: client,
 			},
 			want: Summary{
-				Player: Player{
+				Player: &Player{
 					URL:    "https://example.com/",
 					Width:  convptr(float64(500)),
 					Height: convptr(float64(300)),
@@ -580,7 +576,7 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 				Client: client,
 			},
 			want: Summary{
-				Player: Player{
+				Player: &Player{
 					URL:    "https://example.com/",
 					Width:  convptr(float64(500)),
 					Height: convptr(float64(300)),
@@ -597,7 +593,7 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 				Client: client,
 			},
 			want: Summary{
-				Player: Player{
+				Player: &Player{
 					URL:    "https://example.com/",
 					Width:  convptr(float64(500)),
 					Height: convptr(float64(300)),
@@ -615,7 +611,7 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 			},
 			want: Summary{
 				Description: "nonexistent",
-				Player:      emptyPlayer,
+				Player:      nil,
 			},
 			file:     "oembed.json",
 			template: "oembed-nonexistent-path.html",
@@ -628,7 +624,7 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 			},
 			want: Summary{
 				Description: "wrong url",
-				Player:      emptyPlayer,
+				Player:      nil,
 			},
 			file:     "oembed.json",
 			template: "oembed-wrong-path.html",
@@ -641,7 +637,7 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 			},
 			want: Summary{
 				Description: "blobcats rule the world",
-				Player: Player{
+				Player: &Player{
 					URL:    "https://example.com/",
 					Width:  convptr(float64(500)),
 					Height: convptr(float64(300)),
@@ -659,7 +655,7 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 			},
 			want: Summary{
 				Description: "blobcats rule the world",
-				Player:      emptyPlayer,
+				Player:      nil,
 			},
 			file:     "invalid/oembed-insecure.json",
 			template: "oembed-and-og.html",
@@ -671,7 +667,7 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 				Client: client,
 			},
 			want: Summary{
-				Player: Player{
+				Player: &Player{
 					URL:    "https://example.com/",
 					Width:  convptr(float64(500)),
 					Height: convptr(float64(300)),
@@ -688,7 +684,7 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 				Client: client,
 			},
 			want: Summary{
-				Player: Player{
+				Player: &Player{
 					URL:    "https://example.com/",
 					Width:  &nilany,
 					Height: convptr(float64(300)),
@@ -748,12 +744,7 @@ func TestSummaly_Do_oEmbedInvalid(t *testing.T) {
 			},
 			want: Summary{
 				// Icon: "/apple-touch-icon.png",
-				Player: Player{
-					URL: "",
-					// Width:  &nilany,
-					// Height: &nilany,
-					// Allow:  []string{},
-				},
+				Player: nil,
 			},
 			file:     "dummy",
 			template: "oembed.html",
@@ -784,7 +775,7 @@ func TestSummaly_Do_oEmbedInvalid(t *testing.T) {
 					t.Errorf("Summaly.Do() error = %v, wantErr %v", err, tt.wantErr)
 					return
 				}
-				if diff := cmp.Diff(tt.want.Player.URL, got.Player.URL); diff != "" {
+				if diff := cmp.Diff(tt.want.Player, got.Player); diff != "" {
 					t.Errorf("(-want +got):\n%s", diff)
 				}
 			})

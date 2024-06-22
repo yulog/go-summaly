@@ -163,11 +163,11 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	player := Player{}
+	var player *Player = nil
 	if info.OK {
-		player = info.Player
-	} else {
-		player = Player{
+		player = &info.Player
+	} else if playerUrl != "" {
+		player = &Player{
 			URL:    playerUrl,
 			Width:  &playerWidth,
 			Height: &playerHeight,

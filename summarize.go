@@ -62,20 +62,22 @@ func (s *Summaly) Do() (Summary, error) {
 	return Summary{}, fmt.Errorf("failed summarize")
 }
 
+// TODO: 不要な部分はomitemptyでも良い？nullにしないとダメ？
 type Summary struct {
-	Title       string `json:"title"`
-	Icon        string `json:"icon"`
-	Description string `json:"description"`
-	Thumbnail   string `json:"thumbnail"`
-	Player      Player `json:"player"`
-	Sitename    string `json:"sitename"`
-	Sensitive   bool   `json:"sensitive"`
-	URL         string `json:"url"`
+	Title       string  `json:"title"`
+	Icon        string  `json:"icon"`
+	Description string  `json:"description"`
+	Thumbnail   string  `json:"thumbnail"`
+	Player      *Player `json:"player,omitempty"`
+	Sitename    string  `json:"sitename"`
+	Sensitive   bool    `json:"sensitive"`
+	URL         string  `json:"url"`
 }
 
+// TODO: 不要な部分はomitemptyでも良い？nullにしないとダメ？
 type Player struct {
-	URL    string   `json:"url"`
-	Width  *any     `json:"width"`
-	Height *any     `json:"height"`
-	Allow  []string `json:"allow"`
+	URL    string   `json:"url,omitempty"`
+	Width  *any     `json:"width,omitempty"`
+	Height *any     `json:"height,omitempty"`
+	Allow  []string `json:"allow,omitempty"`
 }
