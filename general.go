@@ -113,39 +113,6 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 		image = s.URL.ResolveReference(u).String()
 	}
 
-	// Twitter/X Player
-
-	playerUrl := ""
-	if m.TwitterCard != "summary_large_image" && m.TwitterPlayer != "" {
-		playerUrl = m.TwitterPlayer
-	}
-
-	var playerWidth any
-	if m.TwitterPlayerWidth != "" {
-		playerWidth, _ = strconv.Atoi(m.TwitterPlayerWidth)
-	}
-
-	var playerHeight any
-	if m.TwitterPlayerHeight != "" {
-		playerHeight, _ = strconv.Atoi(m.TwitterPlayerHeight)
-	}
-
-	// OGP Player
-	if playerUrl == "" {
-		for _, v := range ogp.Video {
-			if v.URL != "" {
-				playerUrl = v.URL
-			} else if v.SecureURL != "" {
-				playerUrl = v.SecureURL
-			}
-			if playerUrl != "" {
-				playerWidth = v.Width
-				playerHeight = v.Height
-				break
-			}
-		}
-	}
-
 	sitename := cmp.Or(ogp.SiteName, m.ApplicationName, s.URL.Host)
 
 	sitename = html.UnescapeString(strings.TrimSpace(sitename))
@@ -166,13 +133,9 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 	var player *Player = nil
 	if info.OK {
 		player = &info.Player
-	} else if playerUrl != "" {
-		player = &Player{
-			URL:    playerUrl,
-			Width:  &playerWidth,
-			Height: &playerHeight,
-			Allow:  []string{"autoplay", "encrypted-media", "fullscreen"},
-		}
+	} else {
+		// oEmbedを優先、ないときにはほかを使う
+		player = getPlayer(m, ogp)
 	}
 
 	return Summary{
@@ -267,4 +230,51 @@ func meta(doc *goquery.Document) (m metaInfo) {
 		return true
 	})
 	return
+}
+
+// getPlayer は Twitter/X, OGP の *Player を返す
+func getPlayer(m metaInfo, ogp *opengraph.OpenGraph) *Player {
+	var playerUrl string
+	var playerWidth any
+	var playerHeight any
+
+	// Twitter/X Player
+	if m.TwitterCard != "summary_large_image" && m.TwitterPlayer != "" {
+		playerUrl = m.TwitterPlayer
+	}
+
+	if m.TwitterPlayerWidth != "" {
+		playerWidth, _ = strconv.Atoi(m.TwitterPlayerWidth)
+	}
+
+	if m.TwitterPlayerHeight != "" {
+		playerHeight, _ = strconv.Atoi(m.TwitterPlayerHeight)
+	}
+
+	// OGP Player
+	if playerUrl == "" {
+		for _, v := range ogp.Video {
+			if v.URL != "" {
+				playerUrl = v.URL
+			} else if v.SecureURL != "" {
+				playerUrl = v.SecureURL
+			}
+			if playerUrl != "" {
+				playerWidth = v.Width
+				playerHeight = v.Height
+				break
+			}
+		}
+	}
+
+	if playerUrl == "" {
+		return nil
+	}
+
+	return &Player{
+		URL:    playerUrl,
+		Width:  &playerWidth,
+		Height: &playerHeight,
+		Allow:  []string{"autoplay", "encrypted-media", "fullscreen"},
+	}
 }

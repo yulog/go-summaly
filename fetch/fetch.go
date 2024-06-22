@@ -86,7 +86,6 @@ func NewClient(c ClientOpts) *Client {
 				}...,
 			),
 			ssrf.WithDeniedV6Prefixes(
-				//
 				[]netip.Prefix{
 					// https://www.iana.org/assignments/iana-ipv6-special-registry/iana-ipv6-special-registry.xhtml
 					netip.MustParsePrefix("::1/128"),         // Loopback Address (RFC 4291)
