@@ -71,17 +71,7 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 		icon = icons[0].URL
 	}
 
-	// favicon library 内で実施済みっぽい
-	// if icon != "" {
-	// 	u, err := url.Parse(icon)
-	// 	if err != nil {
-	// 		return Summary{}, err
-	// 	}
-	// 	icon = s.URL.ResolveReference(u).String()
-	// }
-
 	description := cmp.Or(ogp.Description, m.TwitterDescription, m.Description)
-
 	description = Clip(html.UnescapeString(description), 300)
 
 	if title == description {
@@ -114,7 +104,6 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 	}
 
 	sitename := cmp.Or(ogp.SiteName, m.ApplicationName, s.URL.Host)
-
 	sitename = html.UnescapeString(strings.TrimSpace(sitename))
 
 	title = CleanupTitle(title, sitename)
@@ -177,7 +166,6 @@ type metaInfo struct {
 }
 
 func meta(doc *goquery.Document) (m metaInfo) {
-	// var m metaInfo
 	doc.Find("meta").EachWithBreak(func(i int, s *goquery.Selection) bool {
 		prop, _ := s.Attr("property")
 		name, _ := s.Attr("name")
