@@ -209,35 +209,6 @@ func (m *info) walk(n *xhtml.Node) {
 	}
 }
 
-func _linkImage(doc *goquery.Document) string {
-	var l1, l2, l3 string
-	doc.Find("link").Each(func(i int, s *goquery.Selection) {
-		rel, _ := s.Attr("rel")
-		switch rel {
-		case "image_src":
-			l1, _ = s.Attr("href")
-		case "apple-touch-icon":
-			l2, _ = s.Attr("href")
-		case "apple-touch-icon image_src":
-			l3, _ = s.Attr("href")
-		}
-	})
-	return cmp.Or(l1, l2, l3)
-}
-
-func link(doc *goquery.Document) (val string, exists bool) {
-	doc.Find("link").EachWithBreak(func(i int, s *goquery.Selection) bool {
-		rel, _ := s.Attr("rel")
-		switch rel {
-		case "image_src", "apple-touch-icon", "apple-touch-icon image_src":
-			val, exists = s.Attr("href")
-			return false
-		}
-		return true
-	})
-	return
-}
-
 type info struct {
 	Title     string
 	MetaInfo  metaInfo
@@ -256,18 +227,6 @@ type metaInfo struct {
 	ApplicationName string
 }
 
-type metaInfo_ struct {
-	TwitterTitle        string
-	TwitterDescription  string
-	Description         string
-	TwitterImage        string
-	TwitterCard         string
-	TwitterPlayer       string
-	TwitterPlayerWidth  string
-	TwitterPlayerHeight string
-	ApplicationName     string
-}
-
 type twitter struct {
 	Title        string
 	Description  string
@@ -276,61 +235,6 @@ type twitter struct {
 	Player       string
 	PlayerWidth  string
 	PlayerHeight string
-}
-
-func meta(doc *goquery.Document) (m metaInfo_) {
-	doc.Find("meta").EachWithBreak(func(i int, s *goquery.Selection) bool {
-		prop, _ := s.Attr("property")
-		name, _ := s.Attr("name")
-		content, _ := s.Attr("content")
-
-		prop = cmp.Or(prop, name)
-
-		if prop == "" || content == "" {
-			return true
-		}
-
-		switch prop {
-		case "twitter:title":
-			if m.TwitterTitle == "" {
-				m.TwitterTitle = content
-			}
-		case "twitter:description":
-			if m.TwitterDescription == "" {
-				m.TwitterDescription = content
-			}
-		case "description":
-			if m.Description == "" {
-				m.Description = content
-			}
-		case "twitter:image":
-			if m.TwitterImage == "" {
-				m.TwitterImage = content
-			}
-		case "twitter:card":
-			if m.TwitterCard == "" {
-				m.TwitterCard = content
-			}
-		case "twitter:player":
-			if m.TwitterPlayer == "" {
-				m.TwitterPlayer = content
-			}
-		case "twitter:player:width":
-			if m.TwitterPlayerWidth == "" {
-				m.TwitterPlayerWidth = content
-			}
-		case "twitter:player:height":
-			if m.TwitterPlayerHeight == "" {
-				m.TwitterPlayerHeight = content
-			}
-		case "application-name":
-			if m.ApplicationName == "" {
-				m.ApplicationName = content
-			}
-		}
-		return true
-	})
-	return
 }
 
 // getPlayer は Twitter/X, OGP の *Player を返す
