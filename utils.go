@@ -21,8 +21,8 @@ func Clip(s string, max int) string {
 
 // CleanupTitle は title から siteName を除去する
 func CleanupTitle(title, siteName string) string {
-	if title == "" {
-		return title
+	if title == "" || title == siteName {
+		return siteName
 	}
 	if siteName != "" && strings.Contains(title, siteName) {
 		title = strings.TrimSuffix(title, siteName)

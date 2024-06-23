@@ -108,10 +108,6 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 
 	title = CleanupTitle(title, sitename)
 
-	if title == "" {
-		title = sitename
-	}
-
 	// 使えないらしい
 	sensitive := doc.Find(".tweet").AttrOr("data-possibly-sensitive", "") == "true"
 
