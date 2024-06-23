@@ -98,9 +98,12 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 	if image != "" {
 		u, err := url.Parse(image)
 		if err != nil {
-			return Summary{}, err
+			// url.Parseできないなら空にする
+			fmt.Println(err)
+			image = ""
+		} else {
+			image = s.URL.ResolveReference(u).String()
 		}
-		image = s.URL.ResolveReference(u).String()
 	}
 
 	sitename := cmp.Or(ogp.SiteName, m.ApplicationName, s.URL.Host)
