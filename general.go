@@ -39,7 +39,8 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 
 	icons, err := favicon.New(favicon.NopSort, favicon.IgnoreWellKnown).FindGoQueryDocument(doc, s.URL.String())
 	if err != nil {
-		return Summary{}, err
+		// iconが取得できなくてもエラーにしない
+		fmt.Println(err)
 	}
 	// for _, i := range icons {
 	// 	fmt.Printf("%dx%d\t%s\t%s\n", i.Width, i.Height, i.FileExt, i.URL)
