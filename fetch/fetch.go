@@ -229,7 +229,11 @@ func (reqs *Request) Do() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		// resp.Bodyは必ず読み切って、Closeする
+		io.Copy(io.Discard, resp.Body)
+		resp.Body.Close()
+	}()
 	body, err := io.ReadAll(reqs.limitEncode(resp))
 	if err != nil {
 		return nil, err
