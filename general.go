@@ -83,22 +83,9 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 	image := ""
 	if len(ogp.Image) > 0 {
 		image = ogp.Image[0].URL
-	} else if m.Twitter.Image != "" {
-		image = m.Twitter.Image
 	} else {
-		image = cmp.Or(m.LinkImage.ImageSrc, m.LinkImage.AppleTouchIcon, m.LinkImage.AppleTouchIconImageSrc)
+		image = cmp.Or(m.Twitter.Image, m.LinkImage.ImageSrc, m.LinkImage.AppleTouchIcon, m.LinkImage.AppleTouchIconImageSrc)
 	}
-	// } else if v := doc.Find("link[rel='image_src']").AttrOr("href", ""); v != "" {
-	// 	image = v
-	// } else if v := doc.Find("link[rel='apple-touch-icon']").AttrOr("href", ""); v != "" {
-	// 	image = v
-	// } else if v := doc.Find("link[rel='apple-touch-icon image_src']").AttrOr("href", ""); v != "" {
-	// 	image = v
-	// }
-	// } else if v, exists := link(doc); exists {
-	// 	// もとのような優先順位がなくなり、順不同で初めに見つかったものを採用
-	// 	image = v
-	// }
 
 	if image != "" {
 		u, err := url.Parse(image)
