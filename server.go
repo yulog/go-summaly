@@ -52,25 +52,27 @@ func (srv *Server) getClient() *fetch.Client {
 func (srv *Server) getSummaly(c echo.Context) error {
 	q := new(Query)
 	if err := c.Bind(q); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "bad request")
+		return echo.NewHTTPError(http.StatusBadRequest)
 	}
 	if err := c.Validate(q); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		c.Logger().Error(err)
+		return echo.NewHTTPError(http.StatusBadRequest)
 	}
 	u, err := url.Parse(q.URL)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "bad request")
+		return echo.NewHTTPError(http.StatusBadRequest)
 	}
 	if !strings.Contains(u.Hostname(), ".") {
-		return echo.NewHTTPError(http.StatusBadRequest, "bad request")
+		return echo.NewHTTPError(http.StatusBadRequest)
 	}
 	if pass, _ := u.User.Password(); u.User.Username() != "" || pass != "" {
-		return echo.NewHTTPError(http.StatusBadRequest, "bad request")
+		return echo.NewHTTPError(http.StatusBadRequest)
 	}
 
 	summary, err := New(u, srv.getClient(), WithLang(q.Lang)).Do()
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "bad request "+err.Error())
+		c.Logger().Error(err)
+		return echo.NewHTTPError(http.StatusBadRequest)
 	}
 	return c.JSON(http.StatusOK, summary)
 }
