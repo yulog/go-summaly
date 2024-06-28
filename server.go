@@ -1,11 +1,15 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/url"
+	"os"
+	"os/signal"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
@@ -82,5 +86,22 @@ func main() {
 	e.Use(middleware.Recover())
 	e.Validator = &Validator{validator: validator.New()}
 	e.GET("/", srv.getSummaly)
-	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", config.Port)))
+
+	// https://echo.labstack.com/docs/cookbook/graceful-shutdown
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer stop()
+
+	go func() {
+		if err := e.Start(fmt.Sprintf(":%d", config.Port)); err != nil && err != http.ErrServerClosed {
+			e.Logger.Fatal("shutting down the server")
+		}
+	}()
+
+	// Graceful Shutdown
+	<-ctx.Done()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	if err := e.Shutdown(ctx); err != nil {
+		e.Logger.Fatal(err)
+	}
 }
