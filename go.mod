@@ -21,7 +21,7 @@ require (
 
 require (
 	code.dny.dev/ssrf v0.2.0
-	github.com/caarlos0/env/v11 v11.0.1
+	github.com/caarlos0/env/v11 v11.1.0
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/goccy/go-json v0.10.3
@@ -32,7 +32,7 @@ require (
 	github.com/mattn/go-encoding v0.0.2
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/otiai10/opengraph/v2 v2.1.0
-	github.com/samber/lo v1.39.0
+	github.com/samber/lo v1.43.0
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	github.com/yulog/go-favicon v0.0.0-20240317061907-5201576abfcd
