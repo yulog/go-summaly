@@ -1,10 +1,10 @@
-package main
+package server
 
 import (
 	"time"
 )
 
-//go:generate go run github.com/g4s8/envdoc@latest -output environments.md -type Config
+//go:generate go run github.com/g4s8/envdoc@latest -output ../environments.md -type Config
 type Config struct {
 	// Port to listen for incoming connections
 	Port int `env:"PORT" envDefault:"1323"`

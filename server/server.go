@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"context"
@@ -15,6 +15,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/yulog/go-summaly"
 	"github.com/yulog/go-summaly/fetch"
 )
 
@@ -38,7 +39,7 @@ func (v *Validator) Validate(i interface{}) error {
 	return v.validator.Struct(i)
 }
 
-func NewServer() *Server {
+func New() *Server {
 	var config Config
 	if err := env.Parse(&config); err != nil {
 		fmt.Printf("%+v\n", err)
@@ -79,7 +80,7 @@ func (srv *Server) getSummaly(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest)
 	}
 
-	summary, err := New(u, srv.getClient(), WithLang(q.Lang)).Do()
+	summary, err := summaly.New(u, srv.getClient(), summaly.WithLang(q.Lang)).Do()
 	if err != nil {
 		c.Logger().Error(err)
 		return echo.NewHTTPError(http.StatusBadRequest)
@@ -87,9 +88,7 @@ func (srv *Server) getSummaly(c echo.Context) error {
 	return c.JSON(http.StatusOK, summary)
 }
 
-func main() {
-	srv := NewServer()
-
+func (srv *Server) Start() {
 	e := echo.New()
 	e.JSONSerializer = &JSONSerializer{}
 	e.Use(middleware.Logger())

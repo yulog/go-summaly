@@ -1,4 +1,4 @@
-package main
+package summaly
 
 import (
 	"html/template"
@@ -8,8 +8,10 @@ import (
 	"net/url"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/yulog/go-summaly/fetch"
 )
 
 func convptr[T any](i T) *any {
@@ -41,9 +43,15 @@ func setupServer(template, file string) (mux *http.ServeMux, serverURL string, t
 	return mux, ts.URL, ts.Close
 }
 
+func testClient(allowPrivateIP bool) *fetch.Client {
+	return fetch.NewClient(fetch.ClientOpts{
+		AllowPrivateIP: allowPrivateIP,
+		Timeout:        60 * time.Second,
+	})
+}
+
 func TestSummaly_Do_NoFavicon(t *testing.T) {
-	t.Setenv("ALLOW_PRIVATE_IP", "true")
-	client := NewServer().getClient()
+	client := testClient(true)
 
 	tests := []struct {
 		name     string
@@ -93,8 +101,7 @@ func TestSummaly_Do_NoFavicon(t *testing.T) {
 }
 
 func TestSummaly_Do_TitleCleanup(t *testing.T) {
-	t.Setenv("ALLOW_PRIVATE_IP", "true")
-	client := NewServer().getClient()
+	client := testClient(true)
 
 	tests := []struct {
 		name     string
@@ -143,8 +150,7 @@ func TestSummaly_Do_TitleCleanup(t *testing.T) {
 }
 
 func TestSummaly_Do_PrivateIPBlocking(t *testing.T) {
-	t.Setenv("ALLOW_PRIVATE_IP", "false")
-	client := NewServer().getClient()
+	client := testClient(false)
 
 	tests := []struct {
 		name     string
@@ -190,8 +196,7 @@ func TestSummaly_Do_PrivateIPBlocking(t *testing.T) {
 }
 
 func TestSummaly_Do_OGP(t *testing.T) {
-	t.Setenv("ALLOW_PRIVATE_IP", "true")
-	client := NewServer().getClient()
+	client := testClient(true)
 
 	tests := []struct {
 		name     string
@@ -288,8 +293,7 @@ func TestSummaly_Do_OGP(t *testing.T) {
 }
 
 func TestSummaly_Do_TwitterCard(t *testing.T) {
-	t.Setenv("ALLOW_PRIVATE_IP", "true")
-	client := NewServer().getClient()
+	client := testClient(true)
 
 	tests := []struct {
 		name     string
@@ -425,8 +429,7 @@ func TestSummaly_Do_TwitterCard(t *testing.T) {
 }
 
 func TestSummaly_Do_oEmbed(t *testing.T) {
-	t.Setenv("ALLOW_PRIVATE_IP", "true")
-	client := NewServer().getClient()
+	client := testClient(true)
 
 	tests := []struct {
 		name     string
@@ -717,8 +720,7 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 }
 
 func TestSummaly_Do_oEmbedInvalid(t *testing.T) {
-	t.Setenv("ALLOW_PRIVATE_IP", "true")
-	client := NewServer().getClient()
+	client := testClient(true)
 
 	tests := []struct {
 		name     string
@@ -777,8 +779,7 @@ func TestSummaly_Do_oEmbedInvalid(t *testing.T) {
 }
 
 func BenchmarkSummaly_Do(b *testing.B) {
-	b.Setenv("ALLOW_PRIVATE_IP", "true")
-	client := NewServer().getClient()
+	client := testClient(true)
 
 	_, serverURL, teardown := setupServer("oembed.html", "oembed.json")
 	defer teardown()
