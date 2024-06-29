@@ -22,8 +22,6 @@ import (
 
 var defaultAllowType = []string{"text/html", "application/xhtml+xml"}
 
-// const defaultLimit = 10 << 20 // 10MiB
-
 type Request struct {
 	url *url.URL
 
@@ -230,6 +228,7 @@ func (reqs *Request) Do() ([]byte, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
+
 	body, err := io.ReadAll(reqs.limitEncode(resp))
 	if err != nil {
 		return nil, err
