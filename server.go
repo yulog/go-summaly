@@ -11,6 +11,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/caarlos0/env/v11"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -20,6 +21,8 @@ import (
 type Server struct {
 	client *fetch.Client
 	once   sync.Once
+
+	config Config
 }
 
 type Query struct {
@@ -36,14 +39,21 @@ func (v *Validator) Validate(i interface{}) error {
 }
 
 func NewServer() *Server {
-	return &Server{}
+	var config Config
+	if err := env.Parse(&config); err != nil {
+		fmt.Printf("%+v\n", err)
+		panic(err)
+	}
+	return &Server{
+		config: config,
+	}
 }
 
 func (srv *Server) getClient() *fetch.Client {
 	srv.once.Do(func() {
 		srv.client = fetch.NewClient(fetch.ClientOpts{
-			AllowPrivateIP: config.AllowPrivateIP,
-			Timeout:        config.Timeout,
+			AllowPrivateIP: srv.config.AllowPrivateIP,
+			Timeout:        srv.config.Timeout,
 		})
 	})
 	return srv.client
@@ -78,7 +88,6 @@ func (srv *Server) getSummaly(c echo.Context) error {
 }
 
 func main() {
-	loadConfig()
 	srv := NewServer()
 
 	e := echo.New()
@@ -94,7 +103,7 @@ func main() {
 	defer stop()
 
 	go func() {
-		if err := e.Start(fmt.Sprintf(":%d", config.Port)); err != nil && err != http.ErrServerClosed {
+		if err := e.Start(fmt.Sprintf(":%d", srv.config.Port)); err != nil && err != http.ErrServerClosed {
 			e.Logger.Fatal("shutting down the server")
 		}
 	}()
