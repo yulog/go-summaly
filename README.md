@@ -15,7 +15,7 @@ Installation
 ----------------------------------------------------------------
 
 ```
-go install github.com/yulog/go-summaly@latest
+go install github.com/yulog/go-summaly/cmd/summaly@latest
 ```
 
 🚧 工事中 🚧
@@ -27,7 +27,7 @@ Usage
 Run the server:
 
 ```
-go-summaly
+summaly
 ```
 
 ```
