@@ -104,7 +104,8 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 	title = CleanupTitle(title, sitename)
 
 	// 使えないらしい
-	sensitive := doc.Find(".tweet").AttrOr("data-possibly-sensitive", "") == "true"
+	// sensitive := doc.Find(".tweet").AttrOr("data-possibly-sensitive", "") == "true"
+	sensitive := cmp.Or(m.Rating.MixiContentRating == "1", m.Rating.Rating == "adult", m.Rating.Rating == "RTA-5042-1996-1400-1577-RTA")
 
 	info, err := GetOembedPlayer(s.Client, doc)
 	if err != nil {
@@ -187,6 +188,14 @@ func (m *info) walk(n *xhtml.Node) {
 					if m.MetaInfo.ApplicationName == "" {
 						m.MetaInfo.ApplicationName = meta.Content
 					}
+				case "mixi:content-rating":
+					if m.Rating.MixiContentRating == "" {
+						m.Rating.MixiContentRating = meta.Content
+					}
+				case "rating":
+					if m.Rating.Rating == "" {
+						m.Rating.Rating = meta.Content
+					}
 				}
 			}
 		}
@@ -202,6 +211,7 @@ type info struct {
 	MetaInfo  metaInfo
 	Twitter   twitter
 	LinkImage linkImage
+	Rating    rating
 }
 
 type linkImage struct {
@@ -223,6 +233,11 @@ type twitter struct {
 	Player       string
 	PlayerWidth  string
 	PlayerHeight string
+}
+
+type rating struct {
+	MixiContentRating string
+	Rating            string
 }
 
 // getPlayer は Twitter/X, OGP の *Player を返す
