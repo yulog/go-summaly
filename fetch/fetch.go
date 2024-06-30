@@ -158,7 +158,8 @@ func (c *Client) NewRequest(url *url.URL, options ...Option) *Request {
 		url:       url,
 		allowType: defaultAllowType,
 		limit:     10 << 20, // 10MiB
-		userAgent: "SummalyBot/0.0.1",
+		// like Googlebot
+		userAgent: "Mozilla/5.0 (compatible; SummalyBot/0.0.1; +https://github.com/yulog/go-summaly)",
 		accept:    "text/html, application/xhtml+xml",
 		client:    c,
 	}
