@@ -107,7 +107,7 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 	// sensitive := doc.Find(".tweet").AttrOr("data-possibly-sensitive", "") == "true"
 	sensitive := cmp.Or(m.Rating.MixiContentRating == "1", m.Rating.Rating == "adult", m.Rating.Rating == "RTA-5042-1996-1400-1577-RTA")
 
-	info, err := GetOembedPlayer(s.Client, doc)
+	info, err := GetOembedPlayer(s.Client, doc, s.UserAgent)
 	if err != nil {
 		fmt.Println(err)
 	}

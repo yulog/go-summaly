@@ -80,7 +80,14 @@ func (srv *Server) getSummaly(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest)
 	}
 
-	summary, err := summaly.New(u, srv.getClient(), summaly.WithLang(q.Lang)).Do()
+	summary, err := summaly.New(
+		u,
+		srv.getClient(),
+		summaly.WithLang(q.Lang),
+		summaly.WithBotUA(srv.config.BotUA),
+		summaly.WithNonBotUA(srv.config.NonBotUA),
+		summaly.WithRequireNonBot(srv.config.RequireNonBotUA),
+	).ResolveUserAgent().Do()
 	if err != nil {
 		c.Logger().Error(err)
 		return echo.NewHTTPError(http.StatusBadRequest)

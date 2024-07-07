@@ -14,7 +14,7 @@ import (
 
 var oembedAllowType = []string{"application/json"}
 
-func getOembed(client *fetch.Client, doc *goquery.Document) (*OembedJSON, error) {
+func getOembed(client *fetch.Client, doc *goquery.Document, ua string) (*OembedJSON, error) {
 	if v, ok := doc.Find("link[type='application/json+oembed']").Attr("href"); ok {
 		u, err := url.Parse(v)
 		if err != nil {
@@ -26,6 +26,7 @@ func getOembed(client *fetch.Client, doc *goquery.Document) (*OembedJSON, error)
 			fetch.WithAccept("application/json"),
 			fetch.WithAllowType(oembedAllowType),
 			fetch.WithLimit(500<<10), // 500KiB
+			fetch.WithUserAgent(ua),
 		)
 
 		var o OembedJSON
@@ -66,8 +67,8 @@ type OembedJSON struct {
 	Height  any
 }
 
-func GetOembedPlayer(client *fetch.Client, doc *goquery.Document) (*OembedInfo, error) {
-	o, err := getOembed(client, doc)
+func GetOembedPlayer(client *fetch.Client, doc *goquery.Document, ua string) (*OembedInfo, error) {
+	o, err := getOembed(client, doc, ua)
 	if err != nil {
 		return &OembedInfo{OK: false}, err
 	}
