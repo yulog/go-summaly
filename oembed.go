@@ -10,34 +10,8 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/samber/lo"
 	"github.com/yulog/go-summaly/fetch"
+	"github.com/yulog/go-summaly/oembed"
 )
-
-var oembedAllowType = []string{"application/json"}
-
-func getOembed(client *fetch.Client, doc *goquery.Document, ua string) (*OembedJSON, error) {
-	if v, ok := doc.Find("link[type='application/json+oembed']").Attr("href"); ok {
-		u, err := url.Parse(v)
-		if err != nil {
-			return nil, err
-		}
-		u = doc.Url.ResolveReference(u)
-
-		options := client.NewRequest(u,
-			fetch.WithAccept("application/json"),
-			fetch.WithAllowType(oembedAllowType),
-			fetch.WithLimit(500<<10), // 500KiB
-			fetch.WithUserAgent(ua),
-		)
-
-		var o OembedJSON
-		if err = options.GetJSON(&o); err != nil {
-			return nil, err
-		}
-
-		return &o, nil
-	}
-	return nil, fmt.Errorf("oembed not found")
-}
 
 type OembedInfo struct {
 	OK     bool
@@ -59,21 +33,19 @@ var ignoredList = []string{
 	"", // 空の値も除去する
 }
 
-type OembedJSON struct {
-	Version string
-	Type    string
-	HTML    string
-	Width   any
-	Height  any
-}
-
 func GetOembedPlayer(client *fetch.Client, doc *goquery.Document, ua string) (*OembedInfo, error) {
-	o, err := getOembed(client, doc, ua)
+	oe := &oembed.Oembed{Client: client, UserAgent: ua}
+	u, err := oe.Find(doc)
+	if err != nil {
+		return &OembedInfo{OK: false}, err
+	}
+	var o oembed.Response
+	err = oe.Fetch(u, &o)
 	if err != nil {
 		return &OembedInfo{OK: false}, err
 	}
 
-	if o.Version != "1.0" || !slices.Contains([]string{"rich", "video"}, o.Type) {
+	if o.Version != "1.0" || !slices.Contains([]string{oembed.TypeRich, oembed.TypeVideo}, o.Type) {
 		return &OembedInfo{OK: false}, fmt.Errorf("invalid version or type")
 	}
 
