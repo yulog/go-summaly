@@ -139,6 +139,8 @@ github.com/xdg/stringprep v0.0.0-20180714160509-73f8eece6fdc/go.mod h1:Jhud4/sHM
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
 github.com/yulog/go-favicon v0.0.0-20240317061907-5201576abfcd h1:URYHuGJXWGnPyISGwbHk6Ve4J5vm4Ur12wW9kwTxP4U=
 github.com/yulog/go-favicon v0.0.0-20240317061907-5201576abfcd/go.mod h1:J5M+G77C3RNLNhwKIEPiUjoivYQUIgmZxPVaukP92m8=
+github.com/yulog/go-favicon v0.0.0-20240713052750-a0b211fc420b h1:3Qs5rJ8+n34DG803y7aEtiXEHKD8n/k1x9Jdg1uoFbY=
+github.com/yulog/go-favicon v0.0.0-20240713052750-a0b211fc420b/go.mod h1:gISfHsh8RZyiSVa/hkjt2GoIlCcHYa87rtSrLZTq3sU=
 go.mongodb.org/mongo-driver v1.4.2/go.mod h1:WcMNYLx/IlOxLe6JRJiv2uXuCz6zBLndR4SoGjYphSc=
 golang.org/x/crypto v0.0.0-20180904163835-0709b304e793/go.mod h1:6SG95UA2DQfeDnfUPMdvaQW0Q7yPrPDi9nlGo2tz2b4=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=

@@ -35,7 +35,7 @@ require (
 	github.com/samber/lo v1.44.0
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
-	github.com/yulog/go-favicon v0.0.0-20240317061907-5201576abfcd
+	github.com/yulog/go-favicon v0.0.0-20240713052750-a0b211fc420b
 	golang.org/x/crypto v0.25.0 // indirect
 	golang.org/x/exp v0.0.0-20240707233637-46b078467d37 // indirect
 	golang.org/x/net v0.27.0
