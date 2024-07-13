@@ -32,13 +32,13 @@ require (
 	github.com/mattn/go-encoding v0.0.2
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/otiai10/opengraph/v2 v2.1.0
-	github.com/samber/lo v1.43.0
+	github.com/samber/lo v1.44.0
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	github.com/yulog/go-favicon v0.0.0-20240317061907-5201576abfcd
-	golang.org/x/crypto v0.24.0 // indirect
-	golang.org/x/exp v0.0.0-20240613232115-7f521ea00fb8 // indirect
-	golang.org/x/net v0.26.0
-	golang.org/x/sys v0.21.0 // indirect
+	golang.org/x/crypto v0.25.0 // indirect
+	golang.org/x/exp v0.0.0-20240707233637-46b078467d37 // indirect
+	golang.org/x/net v0.27.0
+	golang.org/x/sys v0.22.0 // indirect
 	golang.org/x/text v0.16.0 // indirect
 )
