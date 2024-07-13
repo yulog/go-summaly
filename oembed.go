@@ -13,11 +13,6 @@ import (
 	"github.com/yulog/go-summaly/oembed"
 )
 
-type OembedInfo struct {
-	OK     bool
-	Player Player
-}
-
 var safeList = []string{
 	"autoplay",
 	"clipboard-write",
@@ -33,20 +28,20 @@ var ignoredList = []string{
 	"", // 空の値も除去する
 }
 
-func GetOembedPlayer(client *fetch.Client, doc *goquery.Document, ua string) (*OembedInfo, error) {
+func GetOembedPlayer(client *fetch.Client, doc *goquery.Document, ua string) (*Player, error) {
 	oe := &oembed.Oembed{Client: client, UserAgent: ua}
 	u, err := oe.Find(doc)
 	if err != nil {
-		return &OembedInfo{OK: false}, err
+		return nil, err
 	}
 	var o oembed.Response
 	err = oe.Fetch(u, &o)
 	if err != nil {
-		return &OembedInfo{OK: false}, err
+		return nil, err
 	}
 
 	if o.Version != "1.0" || !slices.Contains([]string{oembed.TypeRich, oembed.TypeVideo}, o.Type) {
-		return &OembedInfo{OK: false}, fmt.Errorf("invalid version or type")
+		return nil, fmt.Errorf("invalid version or type")
 	}
 
 	// adventar.org でhtmlの終端に\nが入っている
@@ -55,32 +50,32 @@ func GetOembedPlayer(client *fetch.Client, doc *goquery.Document, ua string) (*O
 	// 	return OembedInfo{OK: false}, fmt.Errorf("iframe not contain")
 	// }
 	if !strings.Contains(o.HTML, "<iframe") {
-		return &OembedInfo{OK: false}, fmt.Errorf("iframe not contain")
+		return nil, fmt.Errorf("iframe not contain")
 	}
 	odoc, err := goquery.NewDocumentFromReader(strings.NewReader(o.HTML))
 	if err != nil {
-		return &OembedInfo{OK: false}, err
+		return nil, err
 	}
 
 	iframe := odoc.Find("iframe")
 	if iframe.Length() != 1 {
-		return &OembedInfo{OK: false}, fmt.Errorf("iframe length not equals 1")
+		return nil, fmt.Errorf("iframe length not equals 1")
 	}
 	if iframe.Parents().Length() != 2 {
-		return &OembedInfo{OK: false}, fmt.Errorf("iframe parents length not equals 2")
+		return nil, fmt.Errorf("iframe parents length not equals 2")
 	}
 
 	src, exists := iframe.Attr("src")
 	if !exists {
-		return &OembedInfo{OK: false}, fmt.Errorf("iframe src is not exists")
+		return nil, fmt.Errorf("iframe src is not exists")
 	}
 
 	surl, err := url.Parse(src)
 	if err != nil {
-		return &OembedInfo{OK: false}, err
+		return nil, err
 	}
 	if surl.Scheme != "https" {
-		return &OembedInfo{OK: false}, fmt.Errorf("scheme is not https")
+		return nil, fmt.Errorf("scheme is not https")
 	}
 
 	var width any
@@ -108,7 +103,7 @@ func GetOembedPlayer(client *fetch.Client, doc *goquery.Document, ua string) (*O
 	} else if v, ok := o.Height.(float64); ok {
 		height = v
 	} else {
-		return &OembedInfo{OK: false}, fmt.Errorf("height is incorrect")
+		return nil, fmt.Errorf("height is incorrect")
 	}
 	if height != nil {
 		if i, ok := height.(int); ok && i > 1024 {
@@ -135,16 +130,13 @@ func GetOembedPlayer(client *fetch.Client, doc *goquery.Document, ua string) (*O
 	if lo.SomeBy(allow, func(x string) bool {
 		return !slices.Contains(safeList, x)
 	}) {
-		return &OembedInfo{OK: false}, fmt.Errorf("iframe allow contains unsafe permission: %s", strings.Join(allow, ","))
+		return nil, fmt.Errorf("iframe allow contains unsafe permission: %s", strings.Join(allow, ","))
 	}
 
-	return &OembedInfo{
-		OK: true,
-		Player: Player{
-			URL:    src,
-			Width:  &width,
-			Height: &height,
-			Allow:  allow,
-		},
+	return &Player{
+		URL:    src,
+		Width:  &width,
+		Height: &height,
+		Allow:  allow,
 	}, nil
 }

@@ -107,14 +107,9 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 	// sensitive := doc.Find(".tweet").AttrOr("data-possibly-sensitive", "") == "true"
 	sensitive := cmp.Or(m.Rating.MixiContentRating == "1", m.Rating.Rating == "adult", m.Rating.Rating == "RTA-5042-1996-1400-1577-RTA")
 
-	info, err := GetOembedPlayer(s.Client, doc, s.UserAgent)
+	player, err := GetOembedPlayer(s.Client, doc, s.UserAgent)
 	if err != nil {
 		fmt.Println(err)
-	}
-	var player *Player = nil
-	if info.OK {
-		player = &info.Player
-	} else {
 		// oEmbedを優先、ないときにはほかを使う
 		player = getPlayer(m, ogp)
 	}
