@@ -1,0 +1,14 @@
+services:
+
+  summaly:
+    image: ko://github.com/yulog/go-summaly/cmd/summaly
+    ports:
+      - "8080:1323"
+    environment:
+      - PORT=$PORT
+      - TIMEOUT=$TIMEOUT
+      - REQUIRE_NON_BOT_UA_FILE=$REQUIRE_NON_BOT_UA_FILE
+    volumes:
+      - type: bind
+        source: "./nonbot.txt"
+        target: "/nonbot.txt"
