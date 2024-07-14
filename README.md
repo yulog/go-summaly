@@ -24,7 +24,7 @@ go install github.com/yulog/go-summaly/cmd/summaly@latest
 Usage
 ----------------------------------------------------------------
 
-Run the server:
+サーバーとして:
 
 ```
 summaly
@@ -32,6 +32,25 @@ summaly
 
 ```
 http://localhost:1323/?url=https://example.com
+```
+
+コンテナとして:
+
+```yml
+services:
+
+  summaly:
+    image: ghcr.io/yulog/go-summaly:latest
+    ports:
+      - "8080:1323"
+    environment:
+      - PORT=$PORT
+      - TIMEOUT=$TIMEOUT
+      - REQUIRE_NON_BOT_UA_FILE=$REQUIRE_NON_BOT_UA_FILE
+    volumes:
+      - type: bind
+        source: "./nonbot.txt"
+        target: "/nonbot.txt"
 ```
 
 ### Options
