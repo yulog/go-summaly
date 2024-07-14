@@ -37,13 +37,11 @@ jobs:
       run: mage cross
     
     - name: Set up ko
-      uses: ko-build/setup-ko@v0.6
+      uses: ko-build/setup-ko@v0.7
 
     - name: Publish and Generate compose.yml
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        ko resolve --sbom=none -f compose.yml > ./goxz/compose.yml
+        ko resolve -f compose.yml > ./goxz/compose.yml
 
     - name: Create Release
       run: mage upload
