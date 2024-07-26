@@ -13,10 +13,10 @@ require (
 require (
 	github.com/andybalholm/cascadia v1.3.2 // indirect
 	github.com/friendsofgo/errors v0.9.2 // indirect
-	github.com/gabriel-vasile/mimetype v1.4.4 // indirect
+	github.com/gabriel-vasile/mimetype v1.4.5 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	golang.org/x/time v0.5.0 // indirect
-	golang.org/x/xerrors v0.0.0-20231012003039-104605ab7028 // indirect
+	golang.org/x/xerrors v0.0.0-20240716161551-93cc26a95ae9 // indirect
 )
 
 require (
@@ -33,12 +33,12 @@ require (
 	github.com/mattn/go-encoding v0.0.2
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/otiai10/opengraph/v2 v2.1.0
-	github.com/samber/lo v1.44.0
+	github.com/samber/lo v1.46.0
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	github.com/yulog/go-favicon v0.0.0-20240713052750-a0b211fc420b
 	golang.org/x/crypto v0.25.0 // indirect
-	golang.org/x/exp v0.0.0-20240707233637-46b078467d37 // indirect
+	golang.org/x/exp v0.0.0-20240719175910-8a7402abbf56 // indirect
 	golang.org/x/net v0.27.0
 	golang.org/x/sys v0.22.0 // indirect
 	golang.org/x/text v0.16.0 // indirect
