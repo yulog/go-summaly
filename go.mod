@@ -12,11 +12,9 @@ require (
 
 require (
 	github.com/andybalholm/cascadia v1.3.2 // indirect
-	github.com/friendsofgo/errors v0.9.2 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.5 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	golang.org/x/time v0.5.0 // indirect
-	golang.org/x/xerrors v0.0.0-20240716161551-93cc26a95ae9 // indirect
 )
 
 require (
@@ -36,7 +34,7 @@ require (
 	github.com/samber/lo v1.46.0
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
-	github.com/yulog/go-favicon v0.0.0-20240713052750-a0b211fc420b
+	github.com/yulog/go-favicon v0.0.0-20240727101843-c61065f83192
 	golang.org/x/crypto v0.25.0 // indirect
 	golang.org/x/exp v0.0.0-20240719175910-8a7402abbf56 // indirect
 	golang.org/x/net v0.27.0
