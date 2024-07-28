@@ -77,10 +77,12 @@ func Clean() {
 	os.RemoveAll(bin)
 }
 
-func ShowVersion() {
+// Version print program version
+func Version() {
 	fmt.Println(getVersion())
 }
 
+// Credits create CREDITS file
 func Credits() {
 	_, err := exec.LookPath("gocredits")
 	if err != nil {
@@ -93,6 +95,7 @@ func Credits() {
 	defer f.Close()
 }
 
+// Cross building and archiving
 func Cross() {
 	_, err := exec.LookPath("goxz")
 	if err != nil {
@@ -103,6 +106,7 @@ func Cross() {
 	sh.Run("goxz", "-n", BIN, "-pv=v"+VERSION, BUILD_PATH)
 }
 
+// Bump up program version
 func Bump() {
 	_, err := exec.LookPath("gobump")
 	if err != nil {
@@ -112,6 +116,7 @@ func Bump() {
 	sh.Run("gobump", "up", "-w", BUILD_PATH)
 }
 
+// Upload archives to GitHub Release
 func Upload() {
 	_, err := exec.LookPath("ghr")
 	if err != nil {
