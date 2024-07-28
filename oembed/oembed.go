@@ -55,3 +55,14 @@ func (c *Client) Fetch(u *url.URL, out any) error {
 
 	return nil
 }
+
+func (o *Oembed) Validate() error {
+	if !(o.Type == TypePhoto || o.Type == TypeVideo || o.Type == TypeLink || o.Type == TypeRich) {
+		return fmt.Errorf("invalid type: %s", o.Type)
+	}
+	if o.Version != "1.0" {
+		return fmt.Errorf("invalid version: %s", o.Version)
+	}
+
+	return nil
+}
