@@ -126,6 +126,40 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 	}, nil
 }
 
+type info struct {
+	Title     string
+	MetaInfo  metaInfo
+	Twitter   twitter
+	LinkImage linkImage
+	Rating    rating
+}
+
+type linkImage struct {
+	ImageSrc               string
+	AppleTouchIcon         string
+	AppleTouchIconImageSrc string
+}
+
+type metaInfo struct {
+	Description     string
+	ApplicationName string
+}
+
+type twitter struct {
+	Title        string
+	Description  string
+	Image        string
+	Card         string
+	Player       string
+	PlayerWidth  string
+	PlayerHeight string
+}
+
+type rating struct {
+	MixiContentRating string
+	Rating            string
+}
+
 func (m *info) walk(n *xhtml.Node) {
 	if n.Type == xhtml.ElementNode {
 		switch n.Data {
@@ -199,40 +233,6 @@ func (m *info) walk(n *xhtml.Node) {
 	for child := n.FirstChild; child != nil; child = child.NextSibling {
 		m.walk(child)
 	}
-}
-
-type info struct {
-	Title     string
-	MetaInfo  metaInfo
-	Twitter   twitter
-	LinkImage linkImage
-	Rating    rating
-}
-
-type linkImage struct {
-	ImageSrc               string
-	AppleTouchIcon         string
-	AppleTouchIconImageSrc string
-}
-
-type metaInfo struct {
-	Description     string
-	ApplicationName string
-}
-
-type twitter struct {
-	Title        string
-	Description  string
-	Image        string
-	Card         string
-	Player       string
-	PlayerWidth  string
-	PlayerHeight string
-}
-
-type rating struct {
-	MixiContentRating string
-	Rating            string
 }
 
 // getPlayer は Twitter/X, OGP の *Player を返す
