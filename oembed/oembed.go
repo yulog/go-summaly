@@ -8,12 +8,12 @@ import (
 	"github.com/yulog/go-summaly/fetch"
 )
 
-type Oembed struct {
+type Client struct {
 	Client    *fetch.Client
 	UserAgent string
 }
 
-type Response struct {
+type Oembed struct {
 	Type    string
 	Version string
 	HTML    string
@@ -30,7 +30,7 @@ const (
 
 var oembedAllowType = []string{"application/json"}
 
-func (o *Oembed) Find(doc *goquery.Document) (*url.URL, error) {
+func (c *Client) Find(doc *goquery.Document) (*url.URL, error) {
 	if v, ok := doc.Find("link[type='application/json+oembed']").Attr("href"); ok {
 		u, err := url.Parse(v)
 		if err != nil {
@@ -41,12 +41,12 @@ func (o *Oembed) Find(doc *goquery.Document) (*url.URL, error) {
 	return nil, fmt.Errorf("oembed not found")
 }
 
-func (o *Oembed) Fetch(u *url.URL, out any) error {
-	options := o.Client.NewRequest(u,
+func (c *Client) Fetch(u *url.URL, out any) error {
+	options := c.Client.NewRequest(u,
 		fetch.WithAccept("application/json"),
 		fetch.WithAllowType(oembedAllowType),
 		fetch.WithLimit(500<<10), // 500KiB
-		fetch.WithUserAgent(o.UserAgent),
+		fetch.WithUserAgent(c.UserAgent),
 	)
 
 	if err := options.GetJSON(&out); err != nil {

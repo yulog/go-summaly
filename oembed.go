@@ -29,13 +29,13 @@ var ignoredList = []string{
 }
 
 func GetOembedPlayer(client *fetch.Client, doc *goquery.Document, ua string) (*Player, error) {
-	oe := &oembed.Oembed{Client: client, UserAgent: ua}
-	u, err := oe.Find(doc)
+	oc := &oembed.Client{Client: client, UserAgent: ua}
+	u, err := oc.Find(doc)
 	if err != nil {
 		return nil, err
 	}
-	var o oembed.Response
-	err = oe.Fetch(u, &o)
+	var o oembed.Oembed
+	err = oc.Fetch(u, &o)
 	if err != nil {
 		return nil, err
 	}
