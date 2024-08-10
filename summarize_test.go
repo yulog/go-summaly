@@ -50,6 +50,8 @@ func testClient(allowPrivateIP bool) *fetch.Client {
 	})
 }
 
+// TestSummaly_Do_NoFavicon
+// ルートのfaviconは探さない
 func TestSummaly_Do_NoFavicon(t *testing.T) {
 	client := testClient(true)
 
@@ -63,7 +65,7 @@ func TestSummaly_Do_NoFavicon(t *testing.T) {
 	}{
 		// TODO: Add test cases.
 		{
-			name: "title cleanup",
+			name: "no favicon",
 			s: &Summaly{
 				URL:    nil,
 				Client: client,
