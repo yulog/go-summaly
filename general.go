@@ -2,8 +2,8 @@ package summaly
 
 import (
 	"cmp"
-	"fmt"
 	"html"
+	"log"
 	"net/url"
 	"slices"
 	"strconv"
@@ -40,7 +40,7 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 	icons, err := favicon.New(favicon.NopSort, favicon.IgnoreWellKnown).FindGoQueryDocument(doc, s.URL.String())
 	if err != nil {
 		// iconが取得できなくてもエラーにしない
-		fmt.Println(err)
+		log.Println(err)
 	}
 	// for _, i := range icons {
 	// 	fmt.Printf("%dx%d\t%s\t%s\n", i.Width, i.Height, i.FileExt, i.URL)
@@ -91,7 +91,7 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 		u, err := url.Parse(image)
 		if err != nil {
 			// url.Parseできないなら空にする
-			fmt.Println(err)
+			log.Println(err)
 			image = ""
 		} else {
 			image = s.URL.ResolveReference(u).String()
@@ -109,7 +109,7 @@ func (*General) summarize(s *Summaly) (Summary, error) {
 
 	player, err := GetOembedPlayer(s.Client, doc, s.UserAgent)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		// oEmbedを優先、ないときにはほかを使う
 		player = getPlayer(m, ogp)
 	}
