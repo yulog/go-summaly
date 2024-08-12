@@ -20,6 +20,7 @@ require (
 require (
 	code.dny.dev/ssrf v0.2.0
 	github.com/caarlos0/env/v11 v11.1.0
+	github.com/fatih/color v1.17.0
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/goccy/go-json v0.10.3

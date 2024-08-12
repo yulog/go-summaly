@@ -18,6 +18,8 @@ type Config struct {
 	RequireNonBotUAFile string `env:"REQUIRE_NON_BOT_UA_FILE" envDefault:"./nonbot.txt"`
 	// RequireNonBotUA
 	RequireNonBotUA []string `env:"REQUIRE_NON_BOT_UA,file,expand" envDefault:"${REQUIRE_NON_BOT_UA_FILE}"`
+	// HideBanner to hide startup banner
+	HideBanner bool `env:"HIDE_BANNER" envDefault:"false"`
 	// AllowPrivateIP to connect private ip for test
 	AllowPrivateIP bool `env:"ALLOW_PRIVATE_IP" envDefault:"false"`
 }

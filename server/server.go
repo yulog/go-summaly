@@ -24,6 +24,8 @@ type Server struct {
 	once   sync.Once
 
 	config Config
+
+	version string
 }
 
 type Query struct {
@@ -48,6 +50,11 @@ func New() *Server {
 	return &Server{
 		config: config,
 	}
+}
+
+func (srv *Server) SetVersion(version string) *Server {
+	srv.version = version
+	return srv
 }
 
 func (srv *Server) getClient() *fetch.Client {
@@ -96,7 +103,11 @@ func (srv *Server) getSummaly(c echo.Context) error {
 }
 
 func (srv *Server) Start() {
+	if !srv.config.HideBanner {
+		PrintBanner(srv.version)
+	}
 	e := echo.New()
+	e.HideBanner = srv.config.HideBanner
 	e.JSONSerializer = &JSONSerializer{}
 	e.Use(middleware.Logger())
 	// e.Use(middleware.Gzip())

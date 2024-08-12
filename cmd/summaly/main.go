@@ -11,5 +11,5 @@ const version = "0.0.2"
 var revision = "HEAD"
 
 func main() {
-	server.New().Start()
+	server.New().SetVersion(version).Start()
 }
