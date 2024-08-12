@@ -10,6 +10,8 @@ summaly
 fork of [misskey-dev/summaly](https://github.com/misskey-dev/summaly)
 
 - Go版
+- 互換性がない
+  - ゼロ値の場合、レスポンスのJSONからキーごと落とすため
 
 Installation
 ----------------------------------------------------------------
