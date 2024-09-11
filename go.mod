@@ -5,8 +5,8 @@ go 1.23
 toolchain go1.23.1
 
 require (
-	github.com/PuerkitoBio/goquery v1.9.2
-	github.com/go-playground/validator/v10 v10.22.0
+	github.com/PuerkitoBio/goquery v1.10.0
+	github.com/go-playground/validator/v10 v10.22.1
 	github.com/labstack/echo/v4 v4.12.0
 )
 
@@ -32,13 +32,13 @@ require (
 	github.com/mattn/go-encoding v0.0.2
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/otiai10/opengraph/v2 v2.1.0
-	github.com/samber/lo v1.46.0
+	github.com/samber/lo v1.47.0
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	github.com/yulog/go-favicon v0.0.0-20240727101843-c61065f83192
-	golang.org/x/crypto v0.26.0 // indirect
-	golang.org/x/exp v0.0.0-20240808152545-0cdaa3abc0fa // indirect
-	golang.org/x/net v0.28.0
-	golang.org/x/sys v0.24.0 // indirect
-	golang.org/x/text v0.17.0 // indirect
+	golang.org/x/crypto v0.27.0 // indirect
+	golang.org/x/exp v0.0.0-20240909161429-701f63a606c0 // indirect
+	golang.org/x/net v0.29.0
+	golang.org/x/sys v0.25.0 // indirect
+	golang.org/x/text v0.18.0 // indirect
 )
