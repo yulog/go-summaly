@@ -1,8 +1,8 @@
 module github.com/yulog/go-summaly
 
-go 1.22
+go 1.23
 
-toolchain go1.22.0
+toolchain go1.23.1
 
 require (
 	github.com/PuerkitoBio/goquery v1.9.2
