@@ -107,9 +107,9 @@ func (s *Summaly) Do() (Summary, error) {
 // TODO: 不要な部分はomitemptyでも良い？nullにしないとダメ？
 type Summary struct {
 	Title       string  `json:"title"`
-	Icon        string  `json:"icon"`
-	Description string  `json:"description"`
-	Thumbnail   string  `json:"thumbnail"`
+	Icon        string  `json:"icon,omitempty"`
+	Description string  `json:"description,omitempty"`
+	Thumbnail   string  `json:"thumbnail,omitempty"`
 	Player      *Player `json:"player,omitempty"`
 	Sitename    string  `json:"sitename"`
 	Sensitive   bool    `json:"sensitive"`
