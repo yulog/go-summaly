@@ -28,20 +28,20 @@ var ignoredList = []string{
 	"", // 空の値も除去する
 }
 
-func GetOembedPlayer(client *fetch.Client, doc *goquery.Document, ua string) (*Player, error) {
+func GetOembedPlayer(client *fetch.Client, doc *goquery.Document, ua string) (Player, error) {
 	oc := &oembed.Client{Client: client, UserAgent: ua}
 	u, err := oc.Find(doc)
 	if err != nil {
-		return nil, err
+		return Player{}, err
 	}
 	var o oembed.Oembed
 	err = oc.Fetch(u, &o)
 	if err != nil {
-		return nil, err
+		return Player{}, err
 	}
 
 	if o.Version != "1.0" || !slices.Contains([]string{oembed.TypeRich, oembed.TypeVideo}, o.Type) {
-		return nil, fmt.Errorf("invalid version or type")
+		return Player{}, fmt.Errorf("invalid version or type")
 	}
 
 	// adventar.org でhtmlの終端に\nが入っている
@@ -50,32 +50,32 @@ func GetOembedPlayer(client *fetch.Client, doc *goquery.Document, ua string) (*P
 	// 	return OembedInfo{OK: false}, fmt.Errorf("iframe not contain")
 	// }
 	if !strings.Contains(o.HTML, "<iframe") {
-		return nil, fmt.Errorf("iframe not contain")
+		return Player{}, fmt.Errorf("iframe not contain")
 	}
 	odoc, err := goquery.NewDocumentFromReader(strings.NewReader(o.HTML))
 	if err != nil {
-		return nil, err
+		return Player{}, err
 	}
 
 	iframe := odoc.Find("iframe")
 	if iframe.Length() != 1 {
-		return nil, fmt.Errorf("iframe length not equals 1")
+		return Player{}, fmt.Errorf("iframe length not equals 1")
 	}
 	if iframe.Parents().Length() != 2 {
-		return nil, fmt.Errorf("iframe parents length not equals 2")
+		return Player{}, fmt.Errorf("iframe parents length not equals 2")
 	}
 
 	src, exists := iframe.Attr("src")
 	if !exists {
-		return nil, fmt.Errorf("iframe src is not exists")
+		return Player{}, fmt.Errorf("iframe src is not exists")
 	}
 
 	surl, err := url.Parse(src)
 	if err != nil {
-		return nil, err
+		return Player{}, err
 	}
 	if surl.Scheme != "https" {
-		return nil, fmt.Errorf("scheme is not https")
+		return Player{}, fmt.Errorf("scheme is not https")
 	}
 
 	width := 0
@@ -101,7 +101,7 @@ func GetOembedPlayer(client *fetch.Client, doc *goquery.Document, ua string) (*P
 	} else if v, ok := o.Height.(float64); ok {
 		height = int(v)
 	} else {
-		return nil, fmt.Errorf("height is incorrect")
+		return Player{}, fmt.Errorf("height is incorrect")
 	}
 	height = min(height, 1024)
 
@@ -122,10 +122,10 @@ func GetOembedPlayer(client *fetch.Client, doc *goquery.Document, ua string) (*P
 	if lo.SomeBy(allow, func(x string) bool {
 		return !slices.Contains(safeList, x)
 	}) {
-		return nil, fmt.Errorf("iframe allow contains unsafe permission: %s", strings.Join(allow, ","))
+		return Player{}, fmt.Errorf("iframe allow contains unsafe permission: %s", strings.Join(allow, ","))
 	}
 
-	return &Player{
+	return Player{
 		URL:    src,
 		Width:  width,
 		Height: height,

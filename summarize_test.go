@@ -73,7 +73,7 @@ func TestSummaly_Do_NoFavicon(t *testing.T) {
 			want: Summary{
 				Title:  "Strawberry Pasta",
 				Icon:   "",
-				Player: nil,
+				Player: Player{},
 			},
 			file:     "oembed.json",
 			template: "no-favicon.html",
@@ -122,7 +122,7 @@ func TestSummaly_Do_TitleCleanup(t *testing.T) {
 			},
 			want: Summary{
 				Title:    "Strawberry Pasta",
-				Player:   nil,
+				Player:   Player{},
 				Sitename: "Alice's Site",
 			},
 			file:     "oembed.json",
@@ -217,7 +217,7 @@ func TestSummaly_Do_OGP(t *testing.T) {
 			},
 			want: Summary{
 				Title:    "Strawberry Pasta",
-				Player:   nil,
+				Player:   Player{},
 				Sitename: "WANT_URL",
 			},
 			file:     "oembed.json",
@@ -232,7 +232,7 @@ func TestSummaly_Do_OGP(t *testing.T) {
 			want: Summary{
 				Title:       "YEE HAW",
 				Description: "Strawberry Pasta",
-				Player:      nil,
+				Player:      Player{},
 				Sitename:    "WANT_URL",
 			},
 			file:     "oembed.json",
@@ -246,7 +246,7 @@ func TestSummaly_Do_OGP(t *testing.T) {
 			},
 			want: Summary{
 				Title:    "YEE HAW",
-				Player:   nil,
+				Player:   Player{},
 				Sitename: "Strawberry Pasta",
 			},
 			file:     "oembed.json",
@@ -262,7 +262,7 @@ func TestSummaly_Do_OGP(t *testing.T) {
 				Title:     "YEE HAW",
 				Icon:      "https://himasaku.net/himasaku.png",
 				Thumbnail: "https://himasaku.net/himasaku.png",
-				Player:    nil,
+				Player:    Player{},
 				Sitename:  "WANT_URL",
 			},
 			file:     "oembed.json",
@@ -314,7 +314,7 @@ func TestSummaly_Do_TwitterCard(t *testing.T) {
 			},
 			want: Summary{
 				Title:  "Strawberry Pasta",
-				Player: nil,
+				Player: Player{},
 			},
 			file:     "oembed.json",
 			template: "twitter-title.html",
@@ -328,7 +328,7 @@ func TestSummaly_Do_TwitterCard(t *testing.T) {
 			want: Summary{
 				Title:       "YEE HAW",
 				Description: "Strawberry Pasta",
-				Player:      nil,
+				Player:      Player{},
 			},
 			file:     "oembed.json",
 			template: "twitter-description.html",
@@ -343,7 +343,7 @@ func TestSummaly_Do_TwitterCard(t *testing.T) {
 				Title:     "YEE HAW",
 				Icon:      "https://himasaku.net/himasaku.png",
 				Thumbnail: "https://himasaku.net/himasaku.png",
-				Player:    nil,
+				Player:    Player{},
 			},
 			file:     "oembed.json",
 			template: "twitter-image.html",
@@ -358,7 +358,7 @@ func TestSummaly_Do_TwitterCard(t *testing.T) {
 				Title:       "Title",
 				Description: "Desc",
 				Thumbnail:   "https://example.com/imageurl",
-				Player: &Player{
+				Player: Player{
 					URL:    "https://example.com/embedurl",
 					Width:  640,
 					Height: 480,
@@ -379,7 +379,7 @@ func TestSummaly_Do_TwitterCard(t *testing.T) {
 				Title:       "Title",
 				Description: "Desc",
 				Thumbnail:   "https://example.com/imageurl",
-				Player: &Player{
+				Player: Player{
 					URL:    "https://example.com/embedurl",
 					Width:  480,
 					Height: 480,
@@ -399,7 +399,7 @@ func TestSummaly_Do_TwitterCard(t *testing.T) {
 				Title:       "Title",
 				Description: "Desc",
 				Thumbnail:   "https://example.com/imageurl",
-				Player:      nil,
+				Player:      Player{},
 			},
 			file:     "oembed.json",
 			template: "player-pleroma-image.html",
@@ -449,7 +449,7 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 				Client: client,
 			},
 			want: Summary{
-				Player: &Player{
+				Player: Player{
 					URL:    "https://example.com/",
 					Width:  500,
 					Height: 300,
@@ -466,7 +466,7 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 				Client: client,
 			},
 			want: Summary{
-				Player: &Player{
+				Player: Player{
 					URL:    "https://example.com/",
 					Width:  500,
 					Height: 300,
@@ -483,7 +483,7 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 				Client: client,
 			},
 			want: Summary{
-				Player: &Player{
+				Player: Player{
 					URL:    "https://example.com/",
 					Width:  0,
 					Height: 1024,
@@ -500,7 +500,7 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 				Client: client,
 			},
 			want: Summary{
-				Player: &Player{
+				Player: Player{
 					URL:    "https://example.com/",
 					Width:  500,
 					Height: 300,
@@ -517,7 +517,7 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 				Client: client,
 			},
 			want: Summary{
-				Player: &Player{
+				Player: Player{
 					URL:    "https://example.com/",
 					Width:  500,
 					Height: 300,
@@ -534,7 +534,7 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 				Client: client,
 			},
 			want: Summary{
-				Player: &Player{
+				Player: Player{
 					URL:    "https://example.com/",
 					Width:  500,
 					Height: 300,
@@ -551,7 +551,7 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 				Client: client,
 			},
 			want: Summary{
-				Player: &Player{
+				Player: Player{
 					URL:    "https://example.com/",
 					Width:  500,
 					Height: 300,
@@ -575,7 +575,7 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 				Client: client,
 			},
 			want: Summary{
-				Player: &Player{
+				Player: Player{
 					URL:    "https://example.com/",
 					Width:  500,
 					Height: 300,
@@ -592,7 +592,7 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 				Client: client,
 			},
 			want: Summary{
-				Player: &Player{
+				Player: Player{
 					URL:    "https://example.com/",
 					Width:  500,
 					Height: 300,
@@ -610,7 +610,7 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 			},
 			want: Summary{
 				Description: "nonexistent",
-				Player:      nil,
+				Player:      Player{},
 			},
 			file:     "oembed.json",
 			template: "oembed-nonexistent-path.html",
@@ -623,7 +623,7 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 			},
 			want: Summary{
 				Description: "wrong url",
-				Player:      nil,
+				Player:      Player{},
 			},
 			file:     "oembed.json",
 			template: "oembed-wrong-path.html",
@@ -636,7 +636,7 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 			},
 			want: Summary{
 				Description: "blobcats rule the world",
-				Player: &Player{
+				Player: Player{
 					URL:    "https://example.com/",
 					Width:  500,
 					Height: 300,
@@ -654,7 +654,7 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 			},
 			want: Summary{
 				Description: "blobcats rule the world",
-				Player:      nil,
+				Player:      Player{},
 			},
 			file:     "invalid/oembed-insecure.json",
 			template: "oembed-and-og.html",
@@ -666,7 +666,7 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 				Client: client,
 			},
 			want: Summary{
-				Player: &Player{
+				Player: Player{
 					URL:    "https://example.com/",
 					Width:  500,
 					Height: 300,
@@ -683,7 +683,7 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 				Client: client,
 			},
 			want: Summary{
-				Player: &Player{
+				Player: Player{
 					URL:    "https://example.com/",
 					Width:  0,
 					Height: 300,
@@ -741,7 +741,7 @@ func TestSummaly_Do_oEmbedInvalid(t *testing.T) {
 			},
 			want: Summary{
 				// Icon: "/apple-touch-icon.png",
-				Player: nil,
+				Player: Player{},
 			},
 			file:     "dummy",
 			template: "oembed.html",

@@ -108,7 +108,7 @@ func (srv *Server) Start() {
 	}
 	e := echo.New()
 	e.HideBanner = srv.config.HideBanner
-	e.JSONSerializer = &JSONSerializer{}
+	// e.JSONSerializer = &JSONSerializer{} // goccy/go-json がomitzeroをサポートしていないため
 	e.Use(middleware.Logger())
 	// e.Use(middleware.Gzip())
 	e.Use(middleware.Recover())

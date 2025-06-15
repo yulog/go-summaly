@@ -236,7 +236,7 @@ func (m *info) walk(n *xhtml.Node) {
 }
 
 // getPlayer は Twitter/X, OGP の *Player を返す
-func getPlayer(m *info, ogp *opengraph.OpenGraph) *Player {
+func getPlayer(m *info, ogp *opengraph.OpenGraph) Player {
 	var playerUrl string
 	var playerWidth int
 	var playerHeight int
@@ -271,10 +271,10 @@ func getPlayer(m *info, ogp *opengraph.OpenGraph) *Player {
 	}
 
 	if playerUrl == "" {
-		return nil
+		return Player{}
 	}
 
-	return &Player{
+	return Player{
 		URL:    playerUrl,
 		Width:  playerWidth,
 		Height: playerHeight,
