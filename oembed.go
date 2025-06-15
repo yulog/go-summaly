@@ -78,40 +78,32 @@ func GetOembedPlayer(client *fetch.Client, doc *goquery.Document, ua string) (*P
 		return nil, fmt.Errorf("scheme is not https")
 	}
 
-	var width any
+	width := 0
 	if v, exists := iframe.Attr("width"); exists {
 		width, err = strconv.Atoi(v)
 		if err != nil {
-			width = nil
+			width = 0
 		}
 	} else if v, ok := o.Width.(int); ok {
 		width = v
 	} else if v, ok := o.Width.(float64); ok {
-		width = v
-	} else {
-		width = nil
+		width = int(v)
 	}
 
-	var height any
+	height := 0
 	if v, exists := iframe.Attr("height"); exists {
 		height, err = strconv.Atoi(v)
 		if err != nil {
-			height = nil
+			height = 0
 		}
 	} else if v, ok := o.Height.(int); ok {
 		height = v
 	} else if v, ok := o.Height.(float64); ok {
-		height = v
+		height = int(v)
 	} else {
 		return nil, fmt.Errorf("height is incorrect")
 	}
-	if height != nil {
-		if i, ok := height.(int); ok && i > 1024 {
-			height = 1024
-		} else if i, ok := height.(float64); ok && i > 1024 {
-			height = 1024
-		}
-	}
+	height = min(height, 1024)
 
 	allow := strings.Split(iframe.AttrOr("allow", ""), ";")
 
@@ -135,8 +127,8 @@ func GetOembedPlayer(client *fetch.Client, doc *goquery.Document, ua string) (*P
 
 	return &Player{
 		URL:    src,
-		Width:  &width,
-		Height: &height,
+		Width:  width,
+		Height: height,
 		Allow:  allow,
 	}, nil
 }

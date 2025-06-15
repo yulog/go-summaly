@@ -119,7 +119,7 @@ type Summary struct {
 // TODO: 不要な部分はomitemptyでも良い？nullにしないとダメ？
 type Player struct {
 	URL    string   `json:"url,omitempty"`
-	Width  *any     `json:"width,omitempty"`
-	Height *any     `json:"height,omitempty"`
+	Width  int      `json:"width,omitempty"`
+	Height int      `json:"height,omitempty"`
 	Allow  []string `json:"allow,omitempty"`
 }

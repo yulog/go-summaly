@@ -23,8 +23,8 @@ var nilany any = nil
 
 var emptyPlayer = Player{
 	URL:    "",
-	Width:  nil,
-	Height: nil,
+	Width:  0,
+	Height: 0,
 	Allow:  nil,
 }
 
@@ -360,8 +360,8 @@ func TestSummaly_Do_TwitterCard(t *testing.T) {
 				Thumbnail:   "https://example.com/imageurl",
 				Player: &Player{
 					URL:    "https://example.com/embedurl",
-					Width:  convptr(int(640)),
-					Height: convptr(int(480)),
+					Width:  640,
+					Height: 480,
 					Allow:  []string{"autoplay", "encrypted-media", "fullscreen"},
 				},
 				Sitename: "Site",
@@ -381,8 +381,8 @@ func TestSummaly_Do_TwitterCard(t *testing.T) {
 				Thumbnail:   "https://example.com/imageurl",
 				Player: &Player{
 					URL:    "https://example.com/embedurl",
-					Width:  convptr(int(480)),
-					Height: convptr(int(480)),
+					Width:  480,
+					Height: 480,
 					Allow:  []string{"autoplay", "encrypted-media", "fullscreen"},
 				},
 			},
@@ -451,8 +451,8 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 			want: Summary{
 				Player: &Player{
 					URL:    "https://example.com/",
-					Width:  convptr(float64(500)),
-					Height: convptr(float64(300)),
+					Width:  500,
+					Height: 300,
 					Allow:  []string{},
 				},
 			},
@@ -468,8 +468,8 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 			want: Summary{
 				Player: &Player{
 					URL:    "https://example.com/",
-					Width:  convptr(float64(500)),
-					Height: convptr(float64(300)),
+					Width:  500,
+					Height: 300,
 					Allow:  []string{},
 				},
 			},
@@ -485,8 +485,8 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 			want: Summary{
 				Player: &Player{
 					URL:    "https://example.com/",
-					Width:  &nilany,
-					Height: convptr(1024),
+					Width:  0,
+					Height: 1024,
 					Allow:  []string{},
 				},
 			},
@@ -502,8 +502,8 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 			want: Summary{
 				Player: &Player{
 					URL:    "https://example.com/",
-					Width:  convptr(float64(500)),
-					Height: convptr(float64(300)),
+					Width:  500,
+					Height: 300,
 					Allow:  []string{},
 				},
 			},
@@ -519,8 +519,8 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 			want: Summary{
 				Player: &Player{
 					URL:    "https://example.com/",
-					Width:  convptr(float64(500)),
-					Height: convptr(float64(300)),
+					Width:  500,
+					Height: 300,
 					Allow:  []string{"fullscreen"},
 				},
 			},
@@ -536,8 +536,8 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 			want: Summary{
 				Player: &Player{
 					URL:    "https://example.com/",
-					Width:  convptr(float64(500)),
-					Height: convptr(float64(300)),
+					Width:  500,
+					Height: 300,
 					Allow:  []string{"fullscreen"},
 				},
 			},
@@ -553,8 +553,8 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 			want: Summary{
 				Player: &Player{
 					URL:    "https://example.com/",
-					Width:  convptr(float64(500)),
-					Height: convptr(float64(300)),
+					Width:  500,
+					Height: 300,
 					Allow: []string{
 						"autoplay",
 						"clipboard-write",
@@ -577,8 +577,8 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 			want: Summary{
 				Player: &Player{
 					URL:    "https://example.com/",
-					Width:  convptr(float64(500)),
-					Height: convptr(float64(300)),
+					Width:  500,
+					Height: 300,
 					Allow:  []string{"autoplay"},
 				},
 			},
@@ -594,8 +594,8 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 			want: Summary{
 				Player: &Player{
 					URL:    "https://example.com/",
-					Width:  convptr(float64(500)),
-					Height: convptr(float64(300)),
+					Width:  500,
+					Height: 300,
 					Allow:  []string{},
 				},
 			},
@@ -638,8 +638,8 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 				Description: "blobcats rule the world",
 				Player: &Player{
 					URL:    "https://example.com/",
-					Width:  convptr(float64(500)),
-					Height: convptr(float64(300)),
+					Width:  500,
+					Height: 300,
 					Allow:  []string{},
 				},
 			},
@@ -668,8 +668,8 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 			want: Summary{
 				Player: &Player{
 					URL:    "https://example.com/",
-					Width:  convptr(float64(500)),
-					Height: convptr(float64(300)),
+					Width:  500,
+					Height: 300,
 					Allow:  []string{},
 				},
 			},
@@ -685,8 +685,8 @@ func TestSummaly_Do_oEmbed(t *testing.T) {
 			want: Summary{
 				Player: &Player{
 					URL:    "https://example.com/",
-					Width:  &nilany,
-					Height: convptr(float64(300)),
+					Width:  0,
+					Height: 300,
 					Allow:  []string{},
 				},
 			},

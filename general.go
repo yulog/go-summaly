@@ -238,8 +238,8 @@ func (m *info) walk(n *xhtml.Node) {
 // getPlayer は Twitter/X, OGP の *Player を返す
 func getPlayer(m *info, ogp *opengraph.OpenGraph) *Player {
 	var playerUrl string
-	var playerWidth any
-	var playerHeight any
+	var playerWidth int
+	var playerHeight int
 
 	// Twitter/X Player
 	if m.Twitter.Card != "summary_large_image" && m.Twitter.Player != "" {
@@ -276,8 +276,8 @@ func getPlayer(m *info, ogp *opengraph.OpenGraph) *Player {
 
 	return &Player{
 		URL:    playerUrl,
-		Width:  &playerWidth,
-		Height: &playerHeight,
+		Width:  playerWidth,
+		Height: playerHeight,
 		Allow:  []string{"autoplay", "encrypted-media", "fullscreen"},
 	}
 }
