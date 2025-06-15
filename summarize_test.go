@@ -791,7 +791,7 @@ func BenchmarkSummaly_Do(b *testing.B) {
 		URL:    u,
 		Client: client,
 	}
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		s.Do()
 	}
 }
